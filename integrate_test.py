@@ -24,7 +24,7 @@ Compute Integrals on a Training Dataset
 run = 'run11'
 label = 'target'
 
-with open('../' + run + '/temp/multi_out_predictions.json') as json_file:
+with open('../../' + run + '/temp/multi_out_predictions.json') as json_file:
     dos_dict = json.load(json_file)
 
 dft_3d = jdata("edos_pdos")
@@ -48,8 +48,8 @@ for i in dos_dict:
     target = np.array(i['target'])
     freq = np.linspace(0, 1000, len(target))
     int_DOS.append(pint.integrate_dos(freq, target))
-    S_vib.append(pint.vibrational_entropy(freq, target, 1))
-    Cp.append(pint.heat_capacity(freq, target, 1))
+    S_vib.append(pint.vibrational_entropy(freq, target))
+    Cp.append(pint.heat_capacity(freq, target))
 
 true_output = {'JID' : jid_list,
           'integrated_DOS' : int_DOS,
@@ -57,7 +57,7 @@ true_output = {'JID' : jid_list,
           'Cp (J/mol/K)' : Cp}
 df = pd.DataFrame(true_output)
 
-df.to_csv(run + label + '_thermal_props.csv')
+df.to_csv(run + label + '_thermal_props_scale_2.csv')
 
 
 
@@ -69,7 +69,7 @@ run = 'run11'
 
 label = 'predictions'
 
-with open('../' + run + '/temp/multi_out_predictions.json') as json_file:
+with open('../../' + run + '/temp/multi_out_predictions.json') as json_file:
     dos_dict = json.load(json_file)
 
 
@@ -89,11 +89,12 @@ for i in dos_dict:
     end = jid.find('.vasp')
     jid = jid[start:end]
     jid_list.append(jid)
+    print(jid)
     target = np.array(i['predictions'])
     freq = np.linspace(0, 1000, len(target))
     int_DOS.append(pint.integrate_dos(freq, target))
-    S_vib.append(pint.vibrational_entropy(freq, target, 1))
-    Cp.append(pint.heat_capacity(freq, target, 1))
+    S_vib.append(pint.vibrational_entropy(freq, target))
+    Cp.append(pint.heat_capacity(freq, target))
 
 pred_output = {'JID' : jid_list,
           'integrated_DOS' : int_DOS,
@@ -101,7 +102,7 @@ pred_output = {'JID' : jid_list,
           'Cp (J/mol/K)' : Cp}
 df = pd.DataFrame(pred_output)
 
-df.to_csv(run + label + '_thermal_props.csv')
+df.to_csv(run + label + '_thermal_props_scale_2.csv')
 
 
 '''
@@ -138,4 +139,4 @@ df2 = pd.DataFrame(MAE)
 
 df_tot = pd.concat([df1, df2], axis=1)
 
-df_tot.to_csv('mae_' + run + '_thermal_props.csv')
+df_tot.to_csv('mae_' + run + '_thermal_props_scale_2.csv')

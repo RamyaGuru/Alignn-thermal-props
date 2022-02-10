@@ -61,22 +61,29 @@ def transform_normalized_dos(dft_3d, norm_dos : dict, dos_label = 'target'):
         end = jid.find('.vasp')
         jid = jid[start:end]
         match = next(i for i in dft_3d if i["jid"] == jid)
+        scale = get_natoms_from_db_entry(match)
         freq = np.arange(0, 1000, 5)
         s = Spectrum(x= freq, y=match['pdos_elast'])
         hist, bins = histo_making(1000, 0, 5, s)
         max_intensity = np.max(hist)
         #max_intensity = np.max(match['pdos_elast'])
-        norm_dos[n][dos_label] = np.array(norm_dos[n][dos_label]) * max_intensity
+        norm_dos[n][dos_label] = np.array(norm_dos[n][dos_label]) * max_intensity * scale
     return norm_dos
 
 
-def get_nmol_from_db_entry(p):
-    atoms = Atoms(lattice_mat = p['atoms']['lattice_mat'],\
-                  coords = p['atoms']['coords'], elements = p['atoms']['elements'])
-    form_unit = atoms.composition.reduce()
-    red_atoms = sum([v for v in form_unit[0].values()])  
-    ratio = atoms.num_atoms / red_atoms
-    return red_atoms
+def get_natoms_from_db_entry(p):
+    atoms = Atoms.from_dict(p['atoms'])
+    num_atoms = atoms.num_atoms
+    try:
+        spg = Spacegroup3D(atoms)
+        cvn_atoms = spg.conventional_standard_structure.num_atoms
+    except:
+        cvn_atoms = num_atoms
+    formula = atoms.composition.reduce()
+    form_atoms = sum([v for v in formula[0].values()])
+    #scale = formula[1]
+    scale = (num_atoms / cvn_atoms) * form_atoms
+    return scale
     
     
 
@@ -87,7 +94,7 @@ def integrate_dos(omega, dos):
 
 
 
-def vibrational_entropy(omega, dos, natoms, T = 300):
+def vibrational_entropy(omega, dos, T = 300):
     #Convert inv. cm to eV
     omega = omega * icm_to_eV
     dos = dos / icm_to_eV
@@ -95,18 +102,18 @@ def vibrational_entropy(omega, dos, natoms, T = 300):
     n = 1 / (np.exp(x[1:]) - 1)
     S_vib = kB  * ((n + 1) * np.log(n + 1) + n * np.log(n)) * dos[1:]
     S_vib = np.insert(S_vib, 0, 0)
-    return np.trapz(S_vib, omega) * e * Na * natoms
+    return np.trapz(S_vib, omega) * e * Na
 
 
-def heat_capacity(omega, dos, natoms, T = 300):
+def heat_capacity(omega, dos, T = 300):
     #Convert inv. cm to eV
-    omega = omega * icm_to_eV / natoms
-    dos = dos / icm_to_eV * natoms
+    omega = omega * icm_to_eV
+    dos = dos / icm_to_eV
     x= (omega) / (kB * T)
     #Drop omega = 0 term?
     Cp = kB * x[1:]**2 * (np.exp(x[1:]) / (np.exp(x[1:]) - 1)**2) * dos[1:] #removed factor of 3
     Cp = np.insert(Cp, 0, 0)
-    return np.trapz(Cp, omega) * e * Na * natoms #multiply by #atoms in formula unit??
+    return np.trapz(Cp, omega) * e * Na #multiply by #atoms in formula unit??
     
     
     
@@ -114,7 +121,7 @@ if __name__ == '__main__':
     dft_3d = jdata("edos_pdos")
     max_samples = 10
     
-    jid = 'JVASP-19985'
+    jid = 'JVASP-9430'
     
     x = []
     for i in dft_3d:
@@ -130,13 +137,13 @@ if __name__ == '__main__':
     
     jid = p["jid"]
     
-    n_mols = get_nmol_from_db_entry(p)
+    scale = get_scale_quantity_from_db_entry(p)
     jid_list.append(jid)
     target = np.array(p['pdos_elast'])
     freq = np.linspace(0, 1000, len(target))
     int_DOS.append(integrate_dos(freq, target))
-    S_vib.append(vibrational_entropy(freq, target, n_mols, T = 1000))
-    Cp.append(heat_capacity(freq, target, n_mols, T = 1000))
+    S_vib.append(vibrational_entropy(freq, target, T = 1000))
+    Cp.append(heat_capacity(freq, target, T = 1000))
     
     output = {'JID' : jid_list,
               'integrated_DOS' : int_DOS,

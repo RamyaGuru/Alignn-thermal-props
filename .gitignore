@@ -1,0 +1,5 @@
+#Output directory
+output_files/
+
+#Python Compiler files
+__pycache__/
