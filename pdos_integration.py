@@ -104,6 +104,14 @@ def vibrational_entropy(omega, dos, T = 300):
     S_vib = np.insert(S_vib, 0, 0)
     return np.trapz(S_vib, omega) * e * Na
 
+def vibrational_entropy_scaling(omega, T = 300):
+    omega = omega * icm_to_eV
+    x = (omega) / (kB * T)
+    n = 1 / (np.exp(x[1:]) - 1)
+    S_vib = kB  * ((n + 1) * np.log(n + 1) + n * np.log(n))
+    S_vib = np.insert(S_vib, 0, S_vib[0])
+    return S_vib  
+
 
 def heat_capacity(omega, dos, T = 300):
     #Convert inv. cm to eV
@@ -112,8 +120,16 @@ def heat_capacity(omega, dos, T = 300):
     x= (omega) / (kB * T)
     #Drop omega = 0 term?
     Cp = kB * x[1:]**2 * (np.exp(x[1:]) / (np.exp(x[1:]) - 1)**2) * dos[1:] #removed factor of 3
-    Cp = np.insert(Cp, 0, 0)
+    Cp = np.insert(Cp, 0,0)
     return np.trapz(Cp, omega) * e * Na #multiply by #atoms in formula unit??
+
+def heat_capacity_scaling(omega, T = 300):
+    omega = omega * icm_to_eV
+    x= (omega) / (kB * T)
+    #Drop omega = 0 term?
+    Cp = kB * x[1:]**2 * (np.exp(x[1:]) / (np.exp(x[1:]) - 1)**2)#removed factor of 3
+    Cp = np.insert(Cp, 0, Cp[0])
+    return Cp    
     
     
     
@@ -137,7 +153,7 @@ if __name__ == '__main__':
     
     jid = p["jid"]
     
-    scale = get_scale_quantity_from_db_entry(p)
+    #scale = get_scale_quantity_from_db_entry(p)
     jid_list.append(jid)
     target = np.array(p['pdos_elast'])
     freq = np.linspace(0, 1000, len(target))

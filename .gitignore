@@ -1,5 +1,5 @@
 #Output directory
 output_files/
-
+figures/
 #Python Compiler files
 __pycache__/

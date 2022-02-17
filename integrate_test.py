@@ -16,6 +16,8 @@ from jarvis.db.figshare import data as jdata
 
 from sklearn.metrics import mean_absolute_error
 
+import matplotlib.pyplot as plt
+
 
 '''
 Compute Integrals on a Training Dataset
@@ -140,3 +142,9 @@ df2 = pd.DataFrame(MAE)
 df_tot = pd.concat([df1, df2], axis=1)
 
 df_tot.to_csv('mae_' + run + '_thermal_props_scale_2.csv')
+
+
+
+
+
+
