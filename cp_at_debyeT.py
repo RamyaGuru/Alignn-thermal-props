@@ -18,9 +18,14 @@ from jarvis.core.atoms import Atoms
 
 from sklearn.metrics import mean_absolute_error, r2_score
 from math import isnan
+from math import pi
 
 run = 'run11'
 label = 'target'
+
+hbar = 1.0545718E-34
+kB = 1.38064852E-23
+
 
 with open('../../' + run + '/temp/multi_out_predictions.json') as json_file:
     dos_dict = json.load(json_file)
@@ -36,6 +41,9 @@ jid_list = []
 debyeT_list = []
 Cp_target = []
 Cp_pred = []
+
+gamma_iso_target = []
+gamma_iso_pred = []
 
 for i in dos_dict:
     jid = i["id"]
@@ -56,10 +64,18 @@ for i in dos_dict:
         Cp_pred.append(pint.heat_capacity(freq, prediction, debyeT / 2))
     else:
         Cp_target.append(pint.heat_capacity(freq, target,300))
-        Cp_pred.append(pint.heat_capacity(freq, prediction, 300))        
+        Cp_pred.append(pint.heat_capacity(freq, prediction, 300))
+    try:
+        gamma_iso_target.append(pint.isotopic_tau(match, freq, target))
+        gamma_iso_pred.append(pint.isotopic_tau(match, freq, prediction))
+    except:
+        gamma_iso_target.append(0)
+        gamma_iso_pred.append(0)
 
 
-output = {'JID' : jid_list, 'Cp Target' : Cp_target, 'Cp Prediction' : Cp_pred, 'DebyeT' : debyeT_list}
+output = {'JID' : jid_list, 'Cp Target' : Cp_target, 'Cp Prediction' : Cp_pred,\
+          'DebyeT' : debyeT_list, 'Isotope Gamma Target' : gamma_iso_target,\
+              'Isotope Gamma Prediction' : gamma_iso_pred}
 
 output_df = pd.DataFrame(output)
 

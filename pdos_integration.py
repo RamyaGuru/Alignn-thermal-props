@@ -25,6 +25,8 @@ import pandas as pd
 from jarvis.core.atoms import Atoms
 from jarvis.analysis.structure.spacegroup import Spacegroup3D
 from jarvis.core.spectrum import Spectrum
+from phonopy.structure.atoms import isotope_data
+from math import pi as pi
 #from jarvis.core.composition
 
 '''
@@ -36,6 +38,8 @@ e = 1.60217662e-19
 Na = 6.0221409e23
 
 icm_to_eV = 1.23981e-4
+
+icm_to_thz = 2.99792458e-2
 
 
 def histo_making(max_freq,min_freq,step,s):
@@ -131,6 +135,30 @@ def heat_capacity_scaling(omega, T = 300):
     Cp = np.insert(Cp, 0, Cp[0])
     return Cp    
     
+def isotopic_gamma(p):
+    atoms = Atoms.from_dict(p['atoms'])
+    formula = atoms.composition.reduce()
+    natoms = sum([v for v in formula[0].values()])
+    ave_m = 0
+    gamma = 0
+    for k,v in formula[0].items():
+        iso_list = isotope_data[k]
+        ave_m_n = sum([iso[2] * iso[1] for iso in iso_list])
+        gamma_n = sum([iso[2] * (iso[1] - ave_m_n)**2 for iso in iso_list])
+        ave_m += ave_m_n * (v / natoms)
+        gamma += gamma_n * (v / natoms)
+    return gamma / (ave_m ** 2)
+
+def isotopic_tau(p, omega, dos):
+    gamma = isotopic_gamma(p)
+    atoms = Atoms.from_dict(p['atoms'])
+    atmV = (atoms.volume / atoms.num_atoms) * 1e-30
+    omega = omega * icm_to_thz #* 1e12
+    dos = dos / icm_to_thz / (atmV * atoms.num_atoms) #normalize by unit cell? Already has factor of 3?
+    tau = (pi / 6) * (atmV * gamma * omega ** 2) * dos
+    return np.trapz(tau, omega) * 1e12 # / 1e12) #Integrate over omega THz?
+
+    
     
     
 if __name__ == '__main__':
@@ -148,6 +176,7 @@ if __name__ == '__main__':
     int_DOS = []
     S_vib = []
     Cp = []
+    tau = []
     
     p=x[0]
     
@@ -160,6 +189,7 @@ if __name__ == '__main__':
     int_DOS.append(integrate_dos(freq, target))
     S_vib.append(vibrational_entropy(freq, target, T = 1000))
     Cp.append(heat_capacity(freq, target, T = 1000))
+    tau.append(isotopic_tau(p, freq, target))
     
     output = {'JID' : jid_list,
               'integrated_DOS' : int_DOS,
@@ -184,4 +214,4 @@ if __name__ == '__main__':
     Svib_scaling = vib_scaling(freq)
     plt.plot(freq * icm_to_eV, Svib_scaling)
         
-    
+    gamma = isotopic_gamma(x[0])

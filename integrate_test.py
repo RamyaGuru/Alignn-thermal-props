@@ -41,6 +41,8 @@ jid_list = []
 int_DOS = []
 S_vib = []
 Cp = []
+iso_tau = []
+
 for i in dos_dict:
     jid = i["id"]
     start = jid.find('JVASP')
