@@ -57,7 +57,7 @@ for i in dos_dict:
     match = next(i for i in dft_3d if i["jid"] == jid)
     atoms = Atoms.from_dict(match['atoms'])
     et = ElasticTensor(match['elastic_tensor'])
-    debyeT = et.debye_temperature(atoms)
+    debyeT = et.debye_temperature_toberer(atoms)
     debyeT_list.append(debyeT)
     if not isnan(debyeT):
         Cp_target.append(pint.heat_capacity(freq, target, debyeT / 2))

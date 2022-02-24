@@ -158,14 +158,20 @@ def isotopic_tau(p, omega, dos):
     tau = (pi / 6) * (atmV * gamma * omega ** 2) * dos
     return np.trapz(tau, omega) * 1e12 # / 1e12) #Integrate over omega THz?
 
-    
+def isotopic_tau_scaling(p, omega):
+    gamma = isotopic_gamma(p)
+    atoms = Atoms.from_dict(p['atoms'])
+    atmV = (atoms.volume / atoms.num_atoms) * 1e-30
+    omega = omega * icm_to_thz #* 1e12
+    tau = (pi / 6) * (atmV * gamma * omega ** 2)
+    return tau # / 1e12) #Integrate over omega THz?   
     
     
 if __name__ == '__main__':
     dft_3d = jdata("edos_pdos")
     max_samples = 10
     
-    jid = 'JVASP-9430'
+    jid = 'JVASP-1076'
     
     x = []
     for i in dft_3d:
