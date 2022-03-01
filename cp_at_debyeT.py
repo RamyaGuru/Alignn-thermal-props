@@ -15,6 +15,7 @@ import pandas as pd
 from jarvis.db.figshare import data as jdata
 from jarvis.analysis.elastic.tensor import ElasticTensor
 from jarvis.core.atoms import Atoms
+from jarvis.core.specie import Specie
 
 from sklearn.metrics import mean_absolute_error, r2_score
 from math import isnan
@@ -25,6 +26,15 @@ label = 'target'
 
 hbar = 1.0545718E-34
 kB = 1.38064852E-23
+
+
+def mass_difference(p):
+    elements = p['atoms']['elements']
+    mass = []
+    for sp in elements:
+        mass.append(Specie(sp).atomic_mass)
+    mdiff = max(mass) - min(mass)
+    return mdiff
 
 
 with open('../../' + run + '/temp/multi_out_predictions.json') as json_file:
@@ -39,11 +49,21 @@ norm_dos_dict = pint.transform_normalized_dos(edos_pdos, norm_dos_dict, dos_labe
 
 jid_list = []
 debyeT_list = []
+mdiff_list = []
 Cp_target = []
 Cp_pred = []
 
 gamma_iso_target = []
 gamma_iso_pred = []
+
+'''
+Largest mass difference (heaviest atom - lightest atom)
+'''
+
+
+'''
+Speed of sound -- might not be so different from Debye T?
+'''
 
 for i in dos_dict:
     jid = i["id"]
@@ -59,6 +79,8 @@ for i in dos_dict:
     et = ElasticTensor(match['elastic_tensor'])
     debyeT = et.debye_temperature_toberer(atoms)
     debyeT_list.append(debyeT)
+    mdiff = mass_difference(match)
+    mdiff_list.append(mdiff)
     if not isnan(debyeT):
         Cp_target.append(pint.heat_capacity(freq, target, debyeT / 2))
         Cp_pred.append(pint.heat_capacity(freq, prediction, debyeT / 2))
@@ -74,7 +96,7 @@ for i in dos_dict:
 
 
 output = {'JID' : jid_list, 'Cp Target' : Cp_target, 'Cp Prediction' : Cp_pred,\
-          'DebyeT' : debyeT_list, 'Isotope Gamma Target' : gamma_iso_target,\
+          'DebyeT' : debyeT_list, 'Mass Difference' : mdiff_list, 'Isotope Gamma Target' : gamma_iso_target,\
               'Isotope Gamma Prediction' : gamma_iso_pred}
 
 output_df = pd.DataFrame(output)

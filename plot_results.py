@@ -224,6 +224,14 @@ gamma_pred = np.array(CV_at_debT['Isotope Gamma Prediction']) / 1e9
 gamma_target = gamma_target[np.nonzero(gamma_target)]
 gamma_pred = gamma_pred[np.nonzero(gamma_pred)]
 
+debyeT_gamma = np.array(CV_at_debT['DebyeT'])[np.nonzero(gamma_target)]
+
+debyeT_gen = np.array(CV_at_debT['DebyeT'])
+
+mdiff = np.array(CV_at_debT['Mass Difference'])
+
+mdiff_gamma = mdiff[np.nonzero(gamma_target)]
+
 mae_gamma_dT = mean_absolute_error(gamma_target, gamma_pred)
 r2_gamma_dT = r2_score(gamma_target, gamma_pred)
 rmse_gamma_dT = sqrt(mean_squared_error(gamma_target, gamma_pred))
@@ -309,7 +317,7 @@ plt.savefig('Cv_vs_T.pdf', bbox_inches = 'tight')
 
 
 '''
-2x2 subplots with trends
+2x2 subplots with trends: Color-coded by idfferent attributes
 '''
 mpl.rcdefaults()
 
@@ -322,7 +330,7 @@ label = 'integrated_DOS'
 
 plt.subplot(2,2,1)
 
-plt.scatter(target_df[label], pred_df[label], s = 3, color= 'xkcd:medium blue', alpha=0.4)
+plt.scatter(target_df[label], pred_df[label], s = 3, c= mdiff, alpha=0.5, cmap = 'viridis', vmin=0, vmax=200)
 
 x = np.linspace(0,50,10)
 y = np.linspace(0,50,10)
@@ -347,7 +355,7 @@ label = 'Cp (J/mol/K)'
 
 plt.subplot(2,2,2)
 
-plt.scatter(target_df[label], pred_df[label], s = 3, color= 'xkcd:medium blue', alpha=0.4)
+plt.scatter(target_df[label], pred_df[label], s = 3, c= mdiff, alpha=0.5, cmap = 'viridis', vmin=0, vmax=200)
 
 x = np.linspace(0,300,10)
 y = np.linspace(0,300,10)
@@ -361,7 +369,7 @@ plt.plot(x, y + (np.quantile(target_df[label], 0.75) - np.quantile(target_df[lab
 plt.ylim([0, 300])
 plt.xlim([0,300])
 
-fig.text(0.625, 0.95, r'R$^2$ = 0.749', va='center', fontsize = 12)
+fig.text(0.565, 0.95, r'R$^2$ = 0.749', va='center', fontsize = 12)
 plt.ylabel(r'Predicted DOS C$_{\mathrm{V}}$ (J/mol/K)')
 plt.xlabel(r'Target  DOS C$_{\mathrm{V}}$ (J/mol/K)')
 
@@ -372,7 +380,7 @@ label = 'S_vib (J/mol/K)'
 
 plt.subplot(2,2,3)
 
-plt.scatter(target_df[label], pred_df[label], s = 3, color= 'xkcd:medium blue', alpha=0.4)
+plt.scatter(target_df[label], pred_df[label], s = 3, c= mdiff, alpha=0.5, cmap = 'viridis', vmin=0, vmax=200)
 
 x = np.linspace(0,2000,10)
 y = np.linspace(0,2000,10)
@@ -395,7 +403,7 @@ plt.xlabel(r'Target  DOS S$_{\mathrm{vib}}$ (J/mol/K)')
 
 plt.subplot(2,2,4)
 
-plt.scatter(gamma_target, gamma_pred, s = 3, color= 'xkcd:medium blue', alpha=0.4)
+plt.scatter(gamma_target, gamma_pred, s = 3, c= mdiff_gamma, alpha=0.5, cmap = 'viridis', vmin=0, vmax=200)
 
 x = np.linspace(0,100,10)
 y = np.linspace(0,100,10)
@@ -409,9 +417,9 @@ plt.plot(x, y + (np.quantile(gamma_target, 0.75) - np.quantile(gamma_target, 0.5
 plt.ylim([0, 100])
 plt.xlim([0,100])
 
-fig.text(0.625, 0.45, r'R$^2$ = 0.860', va='center', fontsize = 12)
+fig.text(0.565, 0.45, r'R$^2$ = 0.860', va='center', fontsize = 12)
 plt.ylabel(r'Predicted DOS $\tau^{-1}_{\mathrm{i}}$ (GHz)')
 plt.xlabel(r'Target  DOS $\tau^{-1}_{\mathrm{i}}$ (GHz)')
 
-
-plt.savefig('target_vs_pred_plots.pdf', bbox_inches = 'tight')
+plt.colorbar(label = 'Max Mass Difference')
+plt.savefig('target_vs_pred_plots_mdiff.pdf', bbox_inches = 'tight')

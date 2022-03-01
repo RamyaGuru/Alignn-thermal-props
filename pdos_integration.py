@@ -58,6 +58,7 @@ def histo_making(max_freq,min_freq,step,s):
            hist[ii]=intensita
     return(hist,bins)
 
+
 def transform_normalized_dos(dft_3d, norm_dos : dict, dos_label = 'target'):
     for n in range(len(norm_dos)):
         jid = norm_dos[n]["id"]
