@@ -9,6 +9,8 @@ Run Cv and Svib calculation for the entire database
 
 Save as id_prop.csv and generate the POSCAR files to perform the ALIGNN run
 
+Save binned DOS converted to inverse THz as well
+
 Notes:
     1. Don't need to worry about any DOS normalization.
     2. However, should do the histogram transformation of the DOS before
@@ -24,6 +26,8 @@ from jarvis.core.spectrum import Spectrum
 
 import json
 
+icm_to_thz = 2.99792458e-2
+
 f = open('../../run11/temp/ids_train_val_test.json',)
 
 ids_split = json.load(f)
@@ -37,6 +41,7 @@ T = 300
 jid_list = []
 Svib_list = []
 Cv_list = []
+dos_ithz = []
 for jid in jvasp_list:
     start = jid.find('JVASP')
     end = jid.find('.vasp')
@@ -48,17 +53,20 @@ for jid in jvasp_list:
     s = Spectrum(x= freq, y=np.array(match['pdos_elast']) * scale)
     Svib_list.append(pint.vibrational_entropy(s.x, s.y, T))
     Cv_list.append(pint.heat_capacity(s.x, s.y, T))
+    dos_ithz.append(np.array(match['pdos_elast']) / icm_to_thz)
 
 f1 = open('id_prop_Cv.csv')
 f2 = open('id_prop_Svib.csv')
+f3 = open('id_prop_dos_ithz.csv')
 
 for i in range(len(jvasp_list)):
     f1.write("%s,%s\n" % (jvasp_list[i], Cv_list[i]))
     f2.write("%s,%s\n" % (jvasp_list[i], Svib_list[i]))
+    f3.write("%s,%s\n" % (jvasp_list[i], dos_ithz[i]))
 
 f1.close()
 f2.close()
-    
+f3.close()
     
     
     

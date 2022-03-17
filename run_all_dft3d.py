@@ -38,3 +38,5 @@ df=pd.read_json('pred_data.json')
 df.sort_values('pred',ascending=False)
 print(df)
 
+
+
