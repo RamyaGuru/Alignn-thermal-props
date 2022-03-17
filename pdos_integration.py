@@ -25,7 +25,7 @@ import pandas as pd
 from jarvis.core.atoms import Atoms
 from jarvis.analysis.structure.spacegroup import Spacegroup3D
 from jarvis.core.spectrum import Spectrum
-from phonopy.structure.atoms import isotope_data
+#from phonopy.structure.atoms import isotope_data
 from math import pi as pi
 #from jarvis.core.composition
 
