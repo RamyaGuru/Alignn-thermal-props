@@ -29,7 +29,8 @@ def mean_absolute_deviation(data, axis=None):
 Load target and predicted dataframe. Plot against one another
 '''
 mpl.rcdefaults()
-mpl.rcParams['font.size'] = 16
+#mpl.rcParams['font.size'] = 16
+mpl.rcParams.update({'font.monospace': 'Ubuntu Mono', 'font.sans-serif': 'Open Sans', 'font.family': ['PT Sans'], 'font.size': 16.0})
 
 label = 'integrated_DOS'
 
@@ -172,23 +173,42 @@ Cv at same fraction of Debye temperature
 
 CV_at_debT = pd.read_csv('output_files/run11Cp_at_half_debyeT.csv')
 
-plt.figure()
+fig = plt.figure(figsize = (8,4), constrained_layout = True)
+plt.tight_layout()
+
+plt.subplot(1,2,1)
 plt.scatter(CV_at_debT['Cp Target'],CV_at_debT['Cp Prediction'], s = 5, color= 'xkcd:medium blue', alpha=0.4)
 
 x = np.linspace(0,250,10)
 y = np.linspace(0,250,10)
 
-plt.plot(x, y, linestyle='--', linewidth=2, color='xkcd:black')
+plt.plot(x, y, linewidth=2, color='xkcd:black')
 
-plt.plot(x, y - np.std(CV_at_debT['Cp Target']), linestyle=':', linewidth=2, color='xkcd:black')
+plt.plot(x, y -(np.quantile(CV_at_debT['Cp Target'], 0.5) - np.quantile(CV_at_debT['Cp Target'], 0.25)),\
+         linestyle='--', linewidth=2, color='xkcd:black')
 
-plt.plot(x, y + np.std(CV_at_debT['Cp Target']), linestyle=':', linewidth=2, color='xkcd:black')
+plt.plot(x, y + (np.quantile(CV_at_debT['Cp Target'], 0.5) - np.quantile(CV_at_debT['Cp Target'], 0.25)),\
+         linestyle='--', linewidth=2, color='xkcd:black')
+
+fig.text(0.12, 0.89, r'R$^2$ = 0.759', va='center', fontsize = 18)
+fig.text(0.12, 0.81, r'MAE = 13', va='center', fontsize = 18)
+fig.text(0.12, 0.73, r'MAD = 32', va='center', fontsize = 18)
+
+fig.text(0.44, 0.22, '(a)', va='center', fontsize = 22)
+fig.text(0.94, 0.22, '(b)', va='center', fontsize = 22)
 
 plt.ylim([0, 250])
 plt.xlim([0,250])
 
-plt.xlabel(r'ML C$_{\mathrm{V}}$', size = 14)
-plt.ylabel(r'Target C$_{\mathrm{V}}$', size = 14)
+plt.xlabel(r'Predicted DOS C$_{\mathrm{V}}$ (J/mol/K)')
+plt.ylabel(r'Target DOS C$_{\mathrm{V}}$ (J/mol/K)')
+
+plt.subplot(1,2,2)
+
+plt.hist(CV_at_debT['DebyeT'], 20, color = 'xkcd:bluey green')
+plt.xlabel('Debye Temperature')
+plt.ylabel('Counts')
+
 
 plt.savefig('Cp_at_debT.pdf', bbox_inches = 'tight')
 
@@ -209,10 +229,11 @@ mad_Cp_dT = mean_absolute_deviation(Cp_target)
 Plot Debye Temperature Histogram
 '''
 
-plt.figure()
-plt.hist(CV_at_debT['DebyeT'], 20)
-plt.xlabel('Debye Temperature')
-plt.savefig('debyeT_histo.pdf', bbox_inches = 'tight')
+# plt.figure()
+# plt.hist(CV_at_debT['DebyeT'], 20, color = 'xkcd:bluey green')
+# plt.xlabel('Debye Temperature')
+# plt.ylabel('Counts')
+# plt.savefig('debyeT_histo.pdf', bbox_inches = 'tight')
 
 
 '''
@@ -423,3 +444,214 @@ plt.xlabel(r'Target  DOS $\tau^{-1}_{\mathrm{i}}$ (GHz)')
 
 plt.colorbar(label = 'Max Mass Difference')
 plt.savefig('target_vs_pred_plots_mdiff.pdf', bbox_inches = 'tight')
+
+
+
+'''
+Color by abundance of points in region
+'''
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    new_cmap = mpl.colors.LinearSegmentedColormap.from_list(
+        'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+        cmap(np.linspace(minval, maxval, n)))
+    return new_cmap
+
+#Integrated DOS
+
+mpl.rcdefaults()
+
+
+#fig = plt.figure(figsize = (8,8), constrained_layout=True)
+fig, ax = plt.subplots(3,4, gridspec_kw={'height_ratios': [2, 2, 1.2]}, constrained_layout = True, figsize = (8,9))
+#plt.tight_layout()
+
+label = 'integrated_DOS'
+
+histo_idos = np.histogram2d(target_df[label], pred_df[label], bins = 100)
+
+cx = np.digitize(target_df[label], histo_idos[1])
+cy = np.digitize(pred_df[label], histo_idos[2])
+
+cx = np.where(cx==101, 100, cx) - 1
+cy = np.where(cy==101, 100, cy) - 1
+pairs = [(x,y) for x,y in zip(cx, cy)]
+
+c_idos = []
+
+for p in pairs:
+    c_idos.append(histo_idos[0][p])
+
+plt.subplot(3,2,1)
+x = np.linspace(0,50,10)
+y = np.linspace(0,50,10)
+
+plt.plot(x, y, linewidth=2, color='xkcd:black')
+
+plt.plot(x, y - (np.quantile(target_df[label], 0.5) - np.quantile(target_df[label], 0.25)), linestyle='--', linewidth=2, color='xkcd:black')
+
+plt.plot(x, y + (np.quantile(target_df[label], 0.75) - np.quantile(target_df[label], 0.5)), linestyle='--', linewidth=2, color='xkcd:black')
+
+plt.scatter(target_df[label], pred_df[label], c = c_idos, s = 3, alpha = 0.5, cmap = 'Spectral_r', vmax = 100)
+
+fig.text(0.375, 0.725, '(a)', va='center', fontsize = 18)
+fig.text(0.1, 0.965, r'R$^2$ = 0.767', va='center', fontsize = 16)
+#plt.savefig('target_vs_pred_plots_conc.pdf', bbox_inches = 'tight')
+
+plt.ylim([0, 50])
+plt.xlim([0, 50])
+
+plt.ylabel(r'Predicted Integrated DOS', fontsize = 12)
+plt.xlabel(r'Target Integrated DOS', fontsize = 12)
+
+#Heat Capacity
+
+label = 'Cp (J/mol/K)'
+
+histo_cv = np.histogram2d(target_df[label], pred_df[label], bins = 100)
+
+cx = np.digitize(target_df[label], histo_cv[1])
+cy = np.digitize(pred_df[label], histo_cv[2])
+
+cx = np.where(cx==101, 100, cx) - 1
+cy = np.where(cy==101, 100, cy) - 1
+pairs = [(x,y) for x,y in zip(cx, cy)]
+
+c_cv = []
+
+for p in pairs:
+    c_cv.append(histo_cv[0][p])
+
+
+plt.subplot(3,2,2)
+
+
+x = np.linspace(0,300,10)
+y = np.linspace(0,300,10)
+
+plt.plot(x, y, linewidth=2, color='xkcd:black')
+
+plt.plot(x, y - (np.quantile(target_df[label], 0.5) - np.quantile(target_df[label], 0.25)), linestyle='--', linewidth=2, color='xkcd:black')
+
+plt.plot(x, y + (np.quantile(target_df[label], 0.75) - np.quantile(target_df[label], 0.5)), linestyle='--', linewidth=2, color='xkcd:black')
+
+fig.text(0.815, 0.725, '(b)', va='center', fontsize = 18)
+fig.text(0.555, 0.965, r'R$^2$ = 0.749', va='center', fontsize = 16)
+plt.ylim([0, 300])
+plt.xlim([0,300])
+
+plt.scatter(target_df[label], pred_df[label], c = c_cv, s = 3, alpha = 0.5, cmap = 'Spectral_r', vmax = 100)
+
+plt.ylabel(r'Predicted C$_{\mathrm{V}}$ (J/mol/K)', fontsize = 12)
+plt.xlabel(r'Target C$_{\mathrm{V}}$ (J/mol/K)', fontsize = 12)
+
+
+
+#Vibrational Entropy
+
+label = 'S_vib (J/mol/K)'
+
+histo_svib = np.histogram2d(target_df[label], pred_df[label], bins = 100)
+
+cx = np.digitize(target_df[label], histo_svib[1])
+cy = np.digitize(pred_df[label], histo_svib[2])
+
+cx = np.where(cx==101, 100, cx) - 1
+cy = np.where(cy==101, 100, cy) - 1
+pairs = [(x,y) for x,y in zip(cx, cy)]
+
+c_svib = []
+
+for p in pairs:
+    c_svib.append(histo_svib[0][p])
+    
+plt.subplot(3,2,3)
+
+
+plt.scatter(target_df[label], pred_df[label], s = 3, c= c_svib, alpha=0.5, cmap = 'Spectral_r', vmax = 100)
+
+x = np.linspace(0,2000,10)
+y = np.linspace(0,2000,10)
+
+
+plt.plot(x, y, linewidth=2, color='xkcd:black')
+
+plt.plot(x, y - (np.quantile(target_df[label], 0.5) - np.quantile(target_df[label], 0.25)), linestyle='--', linewidth=2, color='xkcd:black')
+
+plt.plot(x, y + (np.quantile(target_df[label], 0.75) - np.quantile(target_df[label], 0.5)), linestyle='--', linewidth=2, color='xkcd:black')
+
+fig.text(0.375, 0.37, '(c)', va='center', fontsize = 18)
+fig.text(0.1, 0.61, r'R$^2$ = 0.716', va='center', fontsize = 16)
+plt.xlim([0,2000])
+plt.ylim([0,2000])
+
+plt.ylabel(r'Predicted S$_{\mathrm{vib}}$ (J/mol/K)', fontsize = 12)
+plt.xlabel(r'Target S$_{\mathrm{vib}}$ (J/mol/K)', fontsize = 12)
+
+# Isotope Scattering
+
+histo_scatt = np.histogram2d(gamma_target, gamma_pred, bins = 100)
+
+cx = np.digitize(gamma_target, histo_scatt[1])
+cy = np.digitize(gamma_pred, histo_scatt[2])
+
+cx = np.where(cx==101, 100, cx) - 1
+cy = np.where(cy==101, 100, cy) - 1
+pairs = [(x,y) for x,y in zip(cx, cy)]
+
+c_scatt = []
+
+for p in pairs:
+    c_scatt.append(histo_scatt[0][p])
+
+plt.subplot(3,2,4)
+print(max(c_scatt))
+
+plt.scatter(gamma_target, gamma_pred, s = 3, c= c_scatt, alpha=0.5, cmap = 'Spectral_r', vmax = 100)
+
+x = np.linspace(0,100,10)
+y = np.linspace(0,100,10)
+
+plt.plot(x, y, linewidth=2, color='xkcd:black')
+
+plt.plot(x, y - (np.quantile(gamma_target, 0.5) - np.quantile(gamma_target, 0.25)), linestyle='--', linewidth=2, color='xkcd:black')
+
+plt.plot(x, y + (np.quantile(gamma_target, 0.75) - np.quantile(gamma_target, 0.5)), linestyle='--', linewidth=2, color='xkcd:black')
+
+fig.text(0.815, 0.37, '(d)', va='center', fontsize = 18)
+fig.text(0.555, 0.61, r'R$^2$ = 0.860', va='center', fontsize = 16)
+plt.ylim([0, 100])
+plt.xlim([0,100])
+
+
+plt.ylabel(r'Predicted DOS $\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 12)
+plt.xlabel(r'Target  DOS $\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 12)
+
+plt.colorbar(label = 'Sample Count')
+
+'''
+Property histograms
+'''
+plt.subplot(3,4,9)
+fig.text(0.21, 0.25, '(e)', va='center', fontsize = 18)
+
+plt.hist(target_df['integrated_DOS'], 20, color = 'xkcd:bluey green')
+plt.ylabel('Counts', fontsize = 12)
+plt.xlabel('Integrated DOS', fontsize = 12)
+
+plt.subplot(3,4,10)
+plt.hist(target_df['Cp (J/mol/K)'], 20, color = 'xkcd:bluey green')
+plt.xlabel(r'C$_{\mathrm{V}}$ (J/mol/K)', fontsize = 12)
+fig.text(0.45, 0.25, '(f)', va='center', fontsize = 18)
+
+plt.subplot(3,4,11)
+plt.hist(target_df['S_vib (J/mol/K)'], 20, color = 'xkcd:bluey green')
+plt.xlabel('S$_{\mathrm{vib}}$ (J/mol/K)', fontsize = 12)
+fig.text(0.675, 0.25, '(g)', va='center', fontsize = 18)
+
+plt.subplot(3,4,12)
+plt.hist(gamma_target, 20, color = 'xkcd:bluey green')
+plt.xlabel(r'$\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 12)
+fig.text(0.932, 0.25, '(h)', va='center', fontsize = 18)
+plt.xlim([0, 100])
+
+plt.savefig('target_vs_pred_plots_conc.pdf', bbox_inches = 'tight')
