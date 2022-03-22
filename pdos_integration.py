@@ -90,7 +90,19 @@ def get_natoms_from_db_entry(p):
     scale = (num_atoms / cvn_atoms) * form_atoms
     return scale
     
-    
+def get_natoms_form_unit(p):
+    atoms = Atoms.from_dict(p['atoms'])
+    num_atoms = atoms.num_atoms
+    try:
+        spg = Spacegroup3D(atoms)
+        cvn_atoms = spg.conventional_standard_structure.num_atoms
+    except:
+        cvn_atoms = num_atoms
+    formula = atoms.composition.reduce()
+    form_atoms = sum([v for v in formula[0].values()])
+    #scale = formula[1]
+    scale = (num_atoms / cvn_atoms) * form_atoms
+    return form_atoms
 
 def integrate_dos(omega, dos):
     omega = omega * icm_to_eV
