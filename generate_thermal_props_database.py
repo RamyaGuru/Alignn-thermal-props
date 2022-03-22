@@ -26,9 +26,10 @@ from jarvis.core.spectrum import Spectrum
 
 import json
 
-icm_to_thz = 2.99792458e-2
 
-f = open('../../run11/temp/ids_train_val_test.json',)
+icm_to_thz = 2.99792458e-2
+datafile = '../alignn_props_run11/'
+f = open(datafile + 'ids_train_val_test.json',)
 
 ids_split = json.load(f)
 
@@ -42,22 +43,30 @@ jid_list = []
 Svib_list = []
 Cv_list = []
 dos_ithz = []
-for jid in jvasp_list:
+dos_orig = []
+dos_norm_db_max = []
+
+for jvasp in jvasp_list:
+    jid = jvasp
     start = jid.find('JVASP')
     end = jid.find('.vasp')
     jid = jid[start:end]
     jid_list.append(jid)  
     match = next(i for i in dft_3d if i["jid"] == jid)
+    atoms = Atoms.from_dict(match["atoms"])
+    atoms.write_poscar(datafile + jvasp)
     scale = pint.get_natoms_from_db_entry(match)
     freq = np.arange(0, 1000, 5)
     s = Spectrum(x= freq, y=np.array(match['pdos_elast']) * scale)
     Svib_list.append(pint.vibrational_entropy(s.x, s.y, T))
     Cv_list.append(pint.heat_capacity(s.x, s.y, T))
-    dos_ithz.append(np.array(match['pdos_elast']) / icm_to_thz)
-
-f1 = open('id_prop_Cv.csv')
-f2 = open('id_prop_Svib.csv')
-f3 = open('id_prop_dos_ithz.csv')
+    dos_ithz_list = np.array(match['pdos_elast']) / icm_to_thz
+    dos_ithz_str = ",".join(map(str, dos_ithz_list))
+    dos_ithz.append(dos_ithz_str)
+    
+f1 = open(datafile + 'id_prop_Cv.csv', 'w+')
+f2 = open(datafile + 'id_prop_Svib.csv', 'w+')
+f3 = open(datafile + 'id_prop_dos_ithz.csv', 'w+')
 
 for i in range(len(jvasp_list)):
     f1.write("%s,%s\n" % (jvasp_list[i], Cv_list[i]))
