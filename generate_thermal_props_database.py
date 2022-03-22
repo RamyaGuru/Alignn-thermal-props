@@ -43,6 +43,8 @@ jid_list = []
 Svib_list = []
 Cv_list = []
 dos_ithz = []
+dos_orig = []
+dos_norm_db_max = []
 
 for jvasp in jvasp_list:
     jid = jvasp
@@ -58,9 +60,10 @@ for jvasp in jvasp_list:
     s = Spectrum(x= freq, y=np.array(match['pdos_elast']) * scale)
     Svib_list.append(pint.vibrational_entropy(s.x, s.y, T))
     Cv_list.append(pint.heat_capacity(s.x, s.y, T))
-    dos_ithz.append(np.array(match['pdos_elast']) / icm_to_thz)
-
-
+    dos_ithz_list = np.array(match['pdos_elast']) / icm_to_thz
+    dos_ithz_str = ",".join(map(str, dos_ithz_list))
+    dos_ithz.append(dos_ithz_str)
+    
 f1 = open(datafile + 'id_prop_Cv.csv', 'w+')
 f2 = open(datafile + 'id_prop_Svib.csv', 'w+')
 f3 = open(datafile + 'id_prop_dos_ithz.csv', 'w+')
