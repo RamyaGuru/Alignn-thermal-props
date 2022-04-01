@@ -46,6 +46,16 @@ dos_ithz = []
 dos_orig = []
 dos_norm_db_max = []
 
+def max_intensity_db(db):
+    max_each = []
+    for d in db:
+        if d['pdos_elast'] != 'na':
+            max_each.append(max(d['pdos_elast']))
+    max_total = max(max_each)
+    return max_total
+
+#max_total = max_intensity_db(dft_3d)
+
 for jvasp in jvasp_list:
     jid = jvasp
     start = jid.find('JVASP')

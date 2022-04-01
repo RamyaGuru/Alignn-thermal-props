@@ -25,7 +25,7 @@ import pandas as pd
 from jarvis.core.atoms import Atoms
 from jarvis.analysis.structure.spacegroup import Spacegroup3D
 from jarvis.core.spectrum import Spectrum
-#from phonopy.structure.atoms import isotope_data
+from phonopy.structure.atoms import isotope_data
 from math import pi as pi
 #from jarvis.core.composition
 
@@ -76,6 +76,18 @@ def transform_normalized_dos(dft_3d, norm_dos : dict, dos_label = 'target'):
     return norm_dos
 
 
+def transform_dos(dft_3d, norm_dos : dict, dos_label = 'target', unit_conv = 1):
+    for n in range(len(norm_dos)):
+        jid = norm_dos[n]["id"]
+        start = jid.find('JVASP')
+        end = jid.find('.vasp')
+        jid = jid[start:end]
+        match = next(i for i in dft_3d if i["jid"] == jid)
+        scale = get_natoms_from_db_entry(match)
+        #max_intensity = np.max(match['pdos_elast'])
+        norm_dos[n][dos_label] = np.array(norm_dos[n][dos_label]) * unit_conv * scale
+    return norm_dos    
+
 def get_natoms_from_db_entry(p):
     atoms = Atoms.from_dict(p['atoms'])
     num_atoms = atoms.num_atoms
@@ -90,7 +102,25 @@ def get_natoms_from_db_entry(p):
     scale = (num_atoms / cvn_atoms) * form_atoms
     return scale
     
-    
+def get_natoms_form_unit(p):
+    atoms = Atoms.from_dict(p['atoms'])
+    num_atoms = atoms.num_atoms
+    try:
+        spg = Spacegroup3D(atoms)
+        cvn_atoms = spg.conventional_standard_structure.num_atoms
+    except:
+        cvn_atoms = num_atoms
+    formula = atoms.composition.reduce()
+    form_atoms = sum([v for v in formula[0].values()])
+    #scale = formula[1]
+    scale = (num_atoms / cvn_atoms) * form_atoms
+    return form_atoms
+
+# def debye_DOS(p, omega):
+#     #Debye DOS
+
+# def BvK_DOS(p, omega):
+#     #BvK DOS
 
 def integrate_dos(omega, dos):
     omega = omega * icm_to_eV
@@ -158,6 +188,8 @@ def isotopic_tau(p, omega, dos):
     dos = dos / icm_to_thz / (atmV * atoms.num_atoms) #normalize by unit cell? Already has factor of 3?
     tau = (pi / 6) * (atmV * gamma * omega ** 2) * dos
     return np.trapz(tau, omega) * 1e12 # / 1e12) #Integrate over omega THz?
+
+   
 
 def isotopic_tau_scaling(p, omega):
     gamma = isotopic_gamma(p)

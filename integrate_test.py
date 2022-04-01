@@ -23,14 +23,17 @@ import matplotlib.pyplot as plt
 Compute Integrals on a Training Dataset
 '''
 
+icm_to_thz = 2.99792458e-2
+
 run = 'run11'
+input_file = '/dos_orig_output/multi_out_predictions.json'
 label = 'target'
 
-with open('../../' + run + '/temp/multi_out_predictions.json') as json_file:
+with open('../../' + run + input_file) as json_file:
     dos_dict = json.load(json_file)
 
 dft_3d = jdata("edos_pdos")
-dos_dict = pint.transform_normalized_dos(dft_3d, dos_dict, dos_label = 'target')
+dos_dict = pint.transform_dos(dft_3d, dos_dict, dos_label = 'target')
 
 # x = []
 # for i in dos_dict:
@@ -61,7 +64,7 @@ true_output = {'JID' : jid_list,
           'Cp (J/mol/K)' : Cp}
 df = pd.DataFrame(true_output)
 
-df.to_csv(run + label + '_thermal_props_scale_2.csv')
+df.to_csv(run + label + '_thermal_props_orig.csv')
 
 
 
@@ -73,11 +76,11 @@ run = 'run11'
 
 label = 'predictions'
 
-with open('../../' + run + '/temp/multi_out_predictions.json') as json_file:
+with open('../../' + run + input_file) as json_file:
     dos_dict = json.load(json_file)
 
 
-dos_dict = pint.transform_normalized_dos(dft_3d, dos_dict, dos_label = 'predictions')
+dos_dict = pint.transform_dos(dft_3d, dos_dict, dos_label = 'predictions')
 # x = []
 # for i in dos_dict:
 #     if i['predictions'] != 'na':
@@ -106,7 +109,7 @@ pred_output = {'JID' : jid_list,
           'Cp (J/mol/K)' : Cp}
 df = pd.DataFrame(pred_output)
 
-df.to_csv(run + label + '_thermal_props_scale_2.csv')
+df.to_csv(run + label + '_thermal_props_orig.csv')
 
 
 '''
@@ -143,7 +146,7 @@ df2 = pd.DataFrame(MAE)
 
 df_tot = pd.concat([df1, df2], axis=1)
 
-df_tot.to_csv('mae_' + run + '_thermal_props_scale_2.csv')
+df_tot.to_csv('mae_' + run + '_thermal_props_orig.csv')
 
 
 
