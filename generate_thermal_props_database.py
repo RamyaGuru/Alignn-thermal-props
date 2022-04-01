@@ -46,6 +46,16 @@ dos_ithz = []
 dos_orig = []
 dos_norm_db_max = []
 
+def max_intensity_db(db):
+    max_each = []
+    for d in db:
+        if d['pdos_elast'] != 'na':
+            max_each.append(max(d['pdos_elast']))
+    max_total = max(max_each)
+    return max_total
+
+#max_total = max_intensity_db(dft_3d)
+
 for jvasp in jvasp_list:
     jid = jvasp
     start = jid.find('JVASP')
@@ -60,6 +70,9 @@ for jvasp in jvasp_list:
     s = Spectrum(x= freq, y=np.array(match['pdos_elast']) * scale)
     Svib_list.append(pint.vibrational_entropy(s.x, s.y, T))
     Cv_list.append(pint.heat_capacity(s.x, s.y, T))
+    dos_orig_list = np.array(match['pdos_elast'])
+    dos_orig_str = ",".join(map(str, dos_orig_list))
+    dos_orig.append(dos_orig_str)
     dos_ithz_list = np.array(match['pdos_elast']) / icm_to_thz
     dos_ithz_str = ",".join(map(str, dos_ithz_list))
     dos_ithz.append(dos_ithz_str)

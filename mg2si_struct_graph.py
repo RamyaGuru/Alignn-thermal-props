@@ -7,6 +7,8 @@ Created on Fri Mar 18 15:39:31 2022
 
 
 Atomic Simulation Environment
+
+Conda environment: alignn
 """
 
 import ase.io as io
@@ -55,7 +57,7 @@ renderer = io.write('spacegroup-mg2si.pov', mg2si,
                                          canvas_width=320,
                                          bondlinewidth=0.07,
                                          bondatoms=bondatoms))
-
+#Mg2Si : FCC
 atoms_dict = {'lattice_mat': [[3.891767547488381,
    8.710926e-10,
    2.2469128302502366],
@@ -73,24 +75,37 @@ atoms_dict = {'lattice_mat': [[3.891767547488381,
 atoms = Atoms.from_dict(atoms_dict)
 
 
-graph = Graph.atom_dgl_multigraph(
+graph_fcc = Graph.atom_dgl_multigraph(
             atoms,
-            cutoff=4.0,
+            cutoff=100.0,
             atom_features="atomic_number",
-            max_neighbors=1,
+            max_neighbors=12,
             compute_line_graph=True,
             use_canonize=False,
         )
 
-G0 = dgl.to_networkx(graph[0])
-nx.draw(G0, node_color = [(189. / 255, 157. / 255, 227. / 255),\
-                          (189. / 255, 157. / 255, 227. / 255),\
-                           (114. / 255, 173. / 255, 87. / 255)], arrows = False)
 
-plt.savefig('graph0_mg2si.pdf', bbox_inches = 'tight')
+#Ti : HCP
+atoms = Atoms.from_poscar('output_files/POSCAR_Ti')
 
-plt.figure()
-G1 = dgl.to_networkx(graph[1])
-nx.draw(G1, node_color = 'xkcd:black', arrows = False)
+graph_hcp = Graph.atom_dgl_multigraph(
+            atoms,
+            cutoff=100.0,
+            atom_features="atomic_number",
+            max_neighbors=12,
+            compute_line_graph=True,
+            use_canonize=False,
+        )
 
-plt.savefig('graph1_mg2si.pdf', bbox_inches = 'tight')
+# G0 = dgl.to_networkx(graph[0])
+# nx.draw(G0, node_color = [(189. / 255, 157. / 255, 227. / 255),\
+#                           (189. / 255, 157. / 255, 227. / 255),\
+#                            (114. / 255, 173. / 255, 87. / 255)], arrows = False)
+
+# plt.savefig('graph0_mg2si.pdf', bbox_inches = 'tight')
+
+# plt.figure()
+# G1 = dgl.to_networkx(graph[1])
+# nx.draw(G1, node_color = 'xkcd:black', arrows = False)
+
+# plt.savefig('graph1_mg2si.pdf', bbox_inches = 'tight')

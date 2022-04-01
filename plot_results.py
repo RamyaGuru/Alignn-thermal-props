@@ -34,9 +34,9 @@ mpl.rcParams.update({'font.monospace': 'Ubuntu Mono', 'font.sans-serif': 'Open S
 
 label = 'integrated_DOS'
 
-pred_df = pd.read_csv('output_files/run11predictions_thermal_props_scale_2.csv')
+pred_df = pd.read_csv('run11predictions_thermal_props_orig.csv')
 
-target_df = pd.read_csv('output_files/run11target_thermal_props_scale_2.csv')
+target_df = pd.read_csv('run11target_thermal_props_orig.csv')
 
 plt.figure()
 plt.scatter(pred_df[label], target_df[label], s = 5, color= 'xkcd:medium blue', alpha=0.4)
@@ -56,7 +56,7 @@ plt.xlim([0,50])
 plt.xlabel(r'ML Integrated DOS', size = 14)
 plt.ylabel(r'Target Integrated DOS', size = 14)
 
-plt.savefig('true_vs_pred_intDOS.pdf', bbox_inches='tight')
+#plt.savefig('true_vs_pred_intDOS.pdf', bbox_inches='tight')
 
 
 
@@ -93,7 +93,7 @@ plt.ylabel('DOS (a.u.)')
 plt.xlabel(r'Frequency (cm$^{-1}$)')
 plt.legend(frameon = False)
 
-plt.savefig('cv_scaling.pdf', bbox_inches='tight')
+#plt.savefig('cv_scaling.pdf', bbox_inches='tight')
 
 
 '''
@@ -115,7 +115,7 @@ plt.ylabel('DOS (a.u.)')
 plt.xlabel(r'Frequency (cm$^{-1}$)')
 #plt.legend(frameon = False)
 
-plt.savefig('svib_scaling.pdf', bbox_inches='tight')
+#plt.savefig('svib_scaling.pdf', bbox_inches='tight')
 
 
 '''
@@ -134,7 +134,7 @@ fig.text(0.78, 0.7, r'$\tau^{-1}_{\mathrm{i}}$', va='center', fontsize = 28)
 plt.xlim(0, 1000)
 plt.ylim(0, 0.009)
 plt.xlabel(r'Frequency (cm$^{-1}$)')
-plt.savefig('iso_tau_scaling.pdf', bbox_inches='tight')
+#plt.savefig('iso_tau_scaling.pdf', bbox_inches='tight')
 
 
 '''
@@ -210,7 +210,7 @@ plt.xlabel('Debye Temperature')
 plt.ylabel('Counts')
 
 
-plt.savefig('Cp_at_debT.pdf', bbox_inches = 'tight')
+#plt.savefig('Cp_at_debT.pdf', bbox_inches = 'tight')
 
 
 Cp_target = CV_at_debT['Cp Target']
@@ -273,7 +273,7 @@ plt.plot(x, y + np.std(gamma_target), linestyle=':', linewidth=2, color='xkcd:bl
 plt.ylim([0, 100])
 plt.xlim([0,100])
 
-plt.savefig('iso_tau_comparison.pdf', bbox_inches = 'tight')
+#plt.savefig('iso_tau_comparison.pdf', bbox_inches = 'tight')
 
 
 '''
@@ -334,7 +334,7 @@ plt.xlabel('Temperature (K)')
 plt.legend(frameon = False)
 #plt.plot(np.linspace(0, 600, 100), np.ones(100) * DP_limit, linestyle = ':', color = 'xkcd:blood red', linewidth = 3)
 
-plt.savefig('Cv_vs_T.pdf', bbox_inches = 'tight')
+#plt.savefig('Cv_vs_T.pdf', bbox_inches = 'tight')
 
 
 '''
@@ -443,7 +443,7 @@ plt.ylabel(r'Predicted DOS $\tau^{-1}_{\mathrm{i}}$ (GHz)')
 plt.xlabel(r'Target  DOS $\tau^{-1}_{\mathrm{i}}$ (GHz)')
 
 plt.colorbar(label = 'Max Mass Difference')
-plt.savefig('target_vs_pred_plots_mdiff.pdf', bbox_inches = 'tight')
+#plt.savefig('target_vs_pred_plots_mdiff.pdf', bbox_inches = 'tight')
 
 
 
@@ -463,7 +463,7 @@ mpl.rcdefaults()
 
 #fig = plt.figure(figsize = (8,8), constrained_layout=True)
 fig, ax = plt.subplots(3,4, gridspec_kw={'height_ratios': [2, 2, 1.2]}, constrained_layout = True, figsize = (8,9))
-#plt.tight_layout()
+plt.tight_layout()
 
 label = 'integrated_DOS'
 
@@ -493,8 +493,8 @@ plt.plot(x, y + (np.quantile(target_df[label], 0.75) - np.quantile(target_df[lab
 
 plt.scatter(target_df[label], pred_df[label], c = c_idos, s = 3, alpha = 0.5, cmap = 'Spectral_r', vmax = 100)
 
-fig.text(0.375, 0.725, '(a)', va='center', fontsize = 18)
-fig.text(0.1, 0.965, r'R$^2$ = 0.767', va='center', fontsize = 16)
+#fig.text(0.375, 0.725, '(a)', va='center', fontsize = 18)
+fig.text(0.1, 0.95, r'R$^2$ = 0.525', va='center', fontsize = 16)
 #plt.savefig('target_vs_pred_plots_conc.pdf', bbox_inches = 'tight')
 
 plt.ylim([0, 50])
@@ -534,8 +534,8 @@ plt.plot(x, y - (np.quantile(target_df[label], 0.5) - np.quantile(target_df[labe
 
 plt.plot(x, y + (np.quantile(target_df[label], 0.75) - np.quantile(target_df[label], 0.5)), linestyle='--', linewidth=2, color='xkcd:black')
 
-fig.text(0.815, 0.725, '(b)', va='center', fontsize = 18)
-fig.text(0.555, 0.965, r'R$^2$ = 0.749', va='center', fontsize = 16)
+#fig.text(0.815, 0.725, '(b)', va='center', fontsize = 18)
+fig.text(0.6, 0.95, r'R$^2$ = 0.502', va='center', fontsize = 16)
 plt.ylim([0, 300])
 plt.xlim([0,300])
 
@@ -579,8 +579,8 @@ plt.plot(x, y - (np.quantile(target_df[label], 0.5) - np.quantile(target_df[labe
 
 plt.plot(x, y + (np.quantile(target_df[label], 0.75) - np.quantile(target_df[label], 0.5)), linestyle='--', linewidth=2, color='xkcd:black')
 
-fig.text(0.375, 0.37, '(c)', va='center', fontsize = 18)
-fig.text(0.1, 0.61, r'R$^2$ = 0.716', va='center', fontsize = 16)
+#fig.text(0.375, 0.37, '(c)', va='center', fontsize = 18)
+fig.text(0.1, 0.61, r'R$^2$ = 0.560', va='center', fontsize = 16)
 plt.xlim([0,2000])
 plt.ylim([0,2000])
 
@@ -606,25 +606,25 @@ for p in pairs:
 plt.subplot(3,2,4)
 print(max(c_scatt))
 
-plt.scatter(gamma_target, gamma_pred, s = 3, c= c_scatt, alpha=0.5, cmap = 'Spectral_r', vmax = 100)
+# plt.scatter(gamma_target, gamma_pred, s = 3, c= c_scatt, alpha=0.5, cmap = 'Spectral_r', vmax = 100)
 
-x = np.linspace(0,100,10)
-y = np.linspace(0,100,10)
+# x = np.linspace(0,100,10)
+# y = np.linspace(0,100,10)
 
-plt.plot(x, y, linewidth=2, color='xkcd:black')
+# plt.plot(x, y, linewidth=2, color='xkcd:black')
 
-plt.plot(x, y - (np.quantile(gamma_target, 0.5) - np.quantile(gamma_target, 0.25)), linestyle='--', linewidth=2, color='xkcd:black')
+# plt.plot(x, y - (np.quantile(gamma_target, 0.5) - np.quantile(gamma_target, 0.25)), linestyle='--', linewidth=2, color='xkcd:black')
 
-plt.plot(x, y + (np.quantile(gamma_target, 0.75) - np.quantile(gamma_target, 0.5)), linestyle='--', linewidth=2, color='xkcd:black')
+# plt.plot(x, y + (np.quantile(gamma_target, 0.75) - np.quantile(gamma_target, 0.5)), linestyle='--', linewidth=2, color='xkcd:black')
 
-fig.text(0.815, 0.37, '(d)', va='center', fontsize = 18)
-fig.text(0.555, 0.61, r'R$^2$ = 0.860', va='center', fontsize = 16)
-plt.ylim([0, 100])
-plt.xlim([0,100])
+# #fig.text(0.815, 0.37, '(d)', va='center', fontsize = 18)
+# fig.text(0.555, 0.61, r'R$^2$ = 0.860', va='center', fontsize = 16)
+# plt.ylim([0, 100])
+# plt.xlim([0,100])
 
 
-plt.ylabel(r'Predicted DOS $\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 12)
-plt.xlabel(r'Target  DOS $\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 12)
+# plt.ylabel(r'Predicted DOS $\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 12)
+# plt.xlabel(r'Target  DOS $\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 12)
 
 plt.colorbar(label = 'Sample Count')
 
@@ -632,7 +632,7 @@ plt.colorbar(label = 'Sample Count')
 Property histograms
 '''
 plt.subplot(3,4,9)
-fig.text(0.21, 0.25, '(e)', va='center', fontsize = 18)
+#fig.text(0.21, 0.25, '(e)', va='center', fontsize = 18)
 
 plt.hist(target_df['integrated_DOS'], 20, color = 'xkcd:bluey green')
 plt.ylabel('Counts', fontsize = 12)
@@ -641,17 +641,25 @@ plt.xlabel('Integrated DOS', fontsize = 12)
 plt.subplot(3,4,10)
 plt.hist(target_df['Cp (J/mol/K)'], 20, color = 'xkcd:bluey green')
 plt.xlabel(r'C$_{\mathrm{V}}$ (J/mol/K)', fontsize = 12)
-fig.text(0.45, 0.25, '(f)', va='center', fontsize = 18)
+#fig.text(0.45, 0.25, '(f)', va='center', fontsize = 18)
 
 plt.subplot(3,4,11)
 plt.hist(target_df['S_vib (J/mol/K)'], 20, color = 'xkcd:bluey green')
 plt.xlabel('S$_{\mathrm{vib}}$ (J/mol/K)', fontsize = 12)
-fig.text(0.675, 0.25, '(g)', va='center', fontsize = 18)
+#fig.text(0.675, 0.25, '(g)', va='center', fontsize = 18)
 
-plt.subplot(3,4,12)
-plt.hist(gamma_target, 20, color = 'xkcd:bluey green')
-plt.xlabel(r'$\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 12)
-fig.text(0.932, 0.25, '(h)', va='center', fontsize = 18)
-plt.xlim([0, 100])
+# plt.subplot(3,4,12)
+# plt.hist(gamma_target, 20, color = 'xkcd:bluey green')
+# plt.xlabel(r'$\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 12)
+# #fig.text(0.932, 0.25, '(h)', va='center', fontsize = 18)
+# plt.xlim([0, 100])
 
-plt.savefig('target_vs_pred_plots_conc.pdf', bbox_inches = 'tight')
+#plt.savefig('target_vs_pred_plots_conc.pdf', bbox_inches = 'tight')
+
+
+
+
+'''
+NEW FIGURE. Just showing vibraitonal entropy, heat capacity, and isotope scattering
+'''
+
