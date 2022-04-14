@@ -63,32 +63,37 @@ for jvasp in jvasp_list:
     jid = jid[start:end]
     jid_list.append(jid)  
     match = next(i for i in dft_3d if i["jid"] == jid)
-    atoms = Atoms.from_dict(match["atoms"])
-    atoms.write_poscar(datafile + jvasp)
-    scale = pint.get_natoms_from_db_entry(match)
+#    atoms = Atoms.from_dict(match["atoms"])
+#    atoms.write_poscar(datafile + jvasp)
+#    scale = pint.get_natoms_from_db_entry(match)
     freq = np.arange(0, 1000, 5)
-    s = Spectrum(x= freq, y=np.array(match['pdos_elast']) * scale)
-    Svib_list.append(pint.vibrational_entropy(s.x, s.y, T))
-    Cv_list.append(pint.heat_capacity(s.x, s.y, T))
-    dos_orig_list = np.array(match['pdos_elast'])
-    dos_orig_str = ",".join(map(str, dos_orig_list))
-    dos_orig.append(dos_orig_str)
-    dos_ithz_list = np.array(match['pdos_elast']) / icm_to_thz
-    dos_ithz_str = ",".join(map(str, dos_ithz_list))
-    dos_ithz.append(dos_ithz_str)
+#    s = Spectrum(x= freq, y=np.array(match['pdos_elast']) * scale)
+    form_unit = pint.get_natoms_form_unit(match)
+    DOS = np.array(match['pdos_elast'])
+    intDOS_t = pint.integrate_dos(freq, DOS)
+    scale = (intDOS_t / form_unit) / 3.0
+    DOS = DOS / scale
+    Svib_list.append(pint.vibrational_entropy(freq, DOS, T))
+    Cv_list.append(pint.heat_capacity(freq, DOS, T))
+    # dos_orig_list = np.array(match['pdos_elast'])
+    # dos_orig_str = ",".join(map(str, dos_orig_list))
+    # dos_orig.append(dos_orig_str)
+    # dos_ithz_list = np.array(match['pdos_elast']) / icm_to_thz
+    # dos_ithz_str = ",".join(map(str, dos_ithz_list))
+    # dos_ithz.append(dos_ithz_str)
     
-f1 = open(datafile + 'id_prop_Cv.csv', 'w+')
-f2 = open(datafile + 'id_prop_Svib.csv', 'w+')
-f3 = open(datafile + 'id_prop_dos_ithz.csv', 'w+')
+f1 = open(datafile + 'id_prop_Cv_3N.csv', 'w+')
+f2 = open(datafile + 'id_prop_Svib_3N.csv', 'w+')
+#f3 = open(datafile + 'id_prop_dos_ithz.csv', 'w+')
 
 for i in range(len(jvasp_list)):
     f1.write("%s,%s\n" % (jvasp_list[i], Cv_list[i]))
     f2.write("%s,%s\n" % (jvasp_list[i], Svib_list[i]))
-    f3.write("%s,%s\n" % (jvasp_list[i], dos_ithz[i]))
+#    f3.write("%s,%s\n" % (jvasp_list[i], dos_ithz[i]))
 
 f1.close()
 f2.close()
-f3.close()
+#f3.close()
     
     
     
