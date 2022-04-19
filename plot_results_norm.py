@@ -83,6 +83,12 @@ debye_Cv = debye_Cv[~np.isnan(debye_Cv)]
 mae_debye_Cv = mean_absolute_error(target_Cv, debye_Cv)
 mae_bvK_Cv = mean_absolute_error(target_Cv, bvK_Cv)
 
+r2_debye_Cv = r2_score(target_Cv, debye_Cv)
+r2_bvK_Cv = r2_score(target_Cv, bvK_Cv)
+
+mad_debye_Cv = mean_absolute_deviation(target_Cv)
+mad_bvK_Cv = mean_absolute_deviation(target_Cv)
+
 bvK_Svib = np.array(therm_debye_dict['Svib_bvk'])
 debye_Svib = np.array(therm_debye_dict['Svib'])
 target_Svib = np.array(therm_dict['S_vib (J/mol/K)']['target'])
@@ -93,6 +99,12 @@ debye_Svib = debye_Svib[~np.isnan(debye_Svib)]
 
 mae_debye_Svib = mean_absolute_error(target_Svib, debye_Svib)
 mae_bvK_Svib = mean_absolute_error(target_Svib, bvK_Svib)
+
+r2_debye_Svib = r2_score(target_Svib, debye_Svib)
+r2_bvK_Svib = r2_score(target_Svib, bvK_Svib)
+
+mad_debye_Svib = mean_absolute_deviation(target_Svib)
+mad_bvK_Svib = mean_absolute_deviation(target_Svib)
 
 '''
 Plots of Debye and Born von Karman versus target distribution
@@ -380,6 +392,10 @@ plt.subplot(1,4,3)
 plt.hist(therm_dict['Cp (J/mol/K)']['target'], 50, color = 'xkcd:bluey green')
 plt.xlabel(r'RT C$_{\mathrm{V}}$ (J/mol/K)', fontsize = 12)
 #fig.text(0.45, 0.25, '(f)', va='center', fontsize = 18)
+
+#Label peaks at 3NR
+
+
 
 plt.subplot(1,4,4)
 plt.hist(therm_dict['Cp (J/mol/K) DebT']['target'], 50, color = 'xkcd:bluey green')
