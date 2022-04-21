@@ -23,7 +23,7 @@ from math import sqrt
 import json
 
 
-
+#Open the Target and Predicted DOS thermal properties
 with open('output_files/thermal_props_scale_3N.json') as therm_file:
     therm_dict = json.load(therm_file)
 
@@ -31,6 +31,11 @@ prop_list = ['S_vib (J/mol/K)', 'Cp (J/mol/K)']
 
 def mean_absolute_deviation(data, axis=None):
     return np.mean(np.absolute(data - np.mean(data, axis)), axis)
+
+
+#Open the Debye model DOS properties
+with open('output_files/thermal_props_debye.json') as therm_debye_file:
+    therm_debye_dict = json.load(therm_debye_file)
 
 
 '''
@@ -60,8 +65,103 @@ for prop2 in prop_list_2:
     prediction = prediction[~np.isnan(prediction)]
     mad_list.append(mean_absolute_deviation(target))
     mae_list.append(mean_absolute_error(target, prediction))
-    r2_list.append(r2_score(target, prediction))    
+    r2_list.append(r2_score(target, prediction)) 
     
+
+'''
+Compare target distribution to the debye approximation
+'''    
+
+bvK_Cv = np.array(therm_debye_dict['Cv_bvk'])
+debye_Cv = np.array(therm_debye_dict['Cv'])
+target_Cv = np.array(therm_dict['Cp (J/mol/K)']['target'])
+
+bvK_Cv = bvK_Cv[~np.isnan(debye_Cv)]
+target_Cv = target_Cv[~np.isnan(debye_Cv)]
+debye_Cv = debye_Cv[~np.isnan(debye_Cv)]
+
+mae_debye_Cv = mean_absolute_error(target_Cv, debye_Cv)
+mae_bvK_Cv = mean_absolute_error(target_Cv, bvK_Cv)
+
+r2_debye_Cv = r2_score(target_Cv, debye_Cv)
+r2_bvK_Cv = r2_score(target_Cv, bvK_Cv)
+
+mad_debye_Cv = mean_absolute_deviation(target_Cv)
+mad_bvK_Cv = mean_absolute_deviation(target_Cv)
+
+bvK_Svib = np.array(therm_debye_dict['Svib_bvk'])
+debye_Svib = np.array(therm_debye_dict['Svib'])
+target_Svib = np.array(therm_dict['S_vib (J/mol/K)']['target'])
+
+bvK_Svib = bvK_Svib[~np.isnan(debye_Svib)]
+target_Svib = target_Svib[~np.isnan(debye_Svib)]
+debye_Svib = debye_Svib[~np.isnan(debye_Svib)]
+
+mae_debye_Svib = mean_absolute_error(target_Svib, debye_Svib)
+mae_bvK_Svib = mean_absolute_error(target_Svib, bvK_Svib)
+
+r2_debye_Svib = r2_score(target_Svib, debye_Svib)
+r2_bvK_Svib = r2_score(target_Svib, bvK_Svib)
+
+mad_debye_Svib = mean_absolute_deviation(target_Svib)
+mad_bvK_Svib = mean_absolute_deviation(target_Svib)
+
+'''
+Plots of Debye and Born von Karman versus target distribution
+'''
+
+from jarvis.db.figshare import data as jdata
+
+edos_pdos = jdata("edos_pdos")
+dft_3d = jdata("dft_3d")
+
+jid = 'JVASP-32'
+
+match = next(i for i in dft_3d if i["jid"] == jid)
+match_pdos = next(i for i in edos_pdos if i["jid"] == jid)
+
+dos = np.array(match_pdos['pdos_elast'])
+freq = np.linspace(0, 1000, len(dos))
+
+
+int_target = pint.integrate_dos(freq,dos)
+form_unit = pint.get_natoms_form_unit(match)
+scale = int_target / form_unit / 3
+dos = dos / scale
+
+debye_dos = pint.debye_DOS(match, freq)
+debye_k, debye_omega = pint.debye_dispersion(match)
+
+bvk_dos = pint.BvK_DOS_2(match,freq)
+bvk_k, bvk_omega = pint.BvK_dispersion(match)
+
+fig, ax = plt.subplots(1, 3, figsize = (8, 3))
+fig.tight_layout(w_pad = 2)
+
+plt.subplot(1, 3, 1)
+plt.plot(debye_k, debye_omega, 'xkcd:medium blue')
+plt.plot(bvk_k, bvk_omega, 'xkcd:blood red')
+fig.text(0.17, 0.7, 'Debye', va='center', fontsize = 14, color = 'xkcd:medium blue')
+fig.text(0.22, 0.46, 'BvK', va='center', fontsize = 14, color = 'xkcd:blood red')
+plt.xticks([0, 1], ['0', r'k$_{\mathrm{max}}$'])
+plt.xlim([0, 1])
+plt.ylim([0, 25])
+plt.ylabel('Frequency (THz)')
+
+plt.subplot(1, 3, 2)
+plt.plot(freq, dos, 'xkcd:black')
+plt.plot(freq, debye_dos, 'xkcd:medium blue')
+plt.ylim(0, 0.07)
+plt.xlabel(r'Frequency (cm$^{-1}$)')
+plt.ylabel('Density of States')
+
+plt.subplot(1, 3, 3)
+plt.plot(freq, dos, 'xkcd:black')
+plt.plot(freq, bvk_dos, 'xkcd:blood red')
+plt.xlabel(r'Frequency (cm$^{-1}$)')
+plt.ylim(0, 0.1)
+plt.savefig('bvk_debye_comp.pdf', bbox_inches = 'tight')
+
 
 '''
 Plot of room temperature thermal properties
@@ -292,6 +392,10 @@ plt.subplot(1,4,3)
 plt.hist(therm_dict['Cp (J/mol/K)']['target'], 50, color = 'xkcd:bluey green')
 plt.xlabel(r'RT C$_{\mathrm{V}}$ (J/mol/K)', fontsize = 12)
 #fig.text(0.45, 0.25, '(f)', va='center', fontsize = 18)
+
+#Label peaks at 3NR
+
+
 
 plt.subplot(1,4,4)
 plt.hist(therm_dict['Cp (J/mol/K) DebT']['target'], 50, color = 'xkcd:bluey green')

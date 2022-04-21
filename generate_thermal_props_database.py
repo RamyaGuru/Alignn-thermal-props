@@ -84,18 +84,15 @@ for jvasp in jvasp_list:
 f1 = open(datafile + 'id_prop_Cv_3N.csv', 'w+')
 f2 = open(datafile + 'id_prop_Svib_3N.csv', 'w+')
 #f3 = open(datafile + 'id_prop_dos_ithz.csv', 'w+')
-#f4 = open(datafile + 'id_prop_dos_orig.csv', 'w+')
 
 for i in range(len(jvasp_list)):
     f1.write("%s,%s\n" % (jvasp_list[i], Cv_list[i]))
     f2.write("%s,%s\n" % (jvasp_list[i], Svib_list[i]))
 #    f3.write("%s,%s\n" % (jvasp_list[i], dos_ithz[i]))
-#    f4.write("%s,%s\n" % (jvasp_list[i], dos_orig[i]))
 
 f1.close()
 f2.close()
 #f3.close()
-#f4.close()
     
     
     

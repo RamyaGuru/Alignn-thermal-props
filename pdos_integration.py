@@ -25,8 +25,9 @@ import pandas as pd
 from jarvis.core.atoms import Atoms
 from jarvis.analysis.structure.spacegroup import Spacegroup3D
 from jarvis.core.spectrum import Spectrum
-#from phonopy.structure.atoms import isotope_data
-from math import pi as pi
+from phonopy.structure.atoms import isotope_data
+from math import pi, cos, sin, asin, acos
+from jarvis.analysis.elastic.tensor import ElasticTensor
 #from jarvis.core.composition
 
 '''
@@ -116,11 +117,101 @@ def get_natoms_form_unit(p):
     scale = (num_atoms / cvn_atoms) * form_atoms
     return form_atoms
 
-# def debye_DOS(p, omega):
-#     #Debye DOS
+def debye_DOS(p, omega):
+    '''
+    Run up to the Debye temperature. Remaining values should be zeros.
+    '''
+    #Debye DOS
+    #p is an element of the dft_3d database
+    atoms = Atoms.from_dict(p['atoms'])
+    et = ElasticTensor(p['elastic_tensor'])
+    vs = et.velocity_average(atoms)
+    omegaD = et.debye_temperature_toberer(atoms) * kB
+    omegaD = omegaD / icm_to_eV
+    print(omegaD)
+    omega_new = omega[omega < omegaD]
+    dos = 3 * omega_new ** 2 / (2 * pi ** 2 * vs ** 3)
+    pad0 = len(omega) - len(dos)
+    dos = np.pad(dos, (0,pad0))
+    int_dos = integrate_dos(omega, dos)
+    form_unit = get_natoms_form_unit(p)
+    scale = (int_dos / form_unit) / 3.0
+    dos = dos / scale
+    return dos
 
-# def BvK_DOS(p, omega):
-#     #BvK DOS
+
+def debye_dispersion(p):
+    atoms = Atoms.from_dict(p['atoms'])
+    et = ElasticTensor(p['elastic_tensor'])
+    vs = et.velocity_average(atoms)  
+    atmV = (atoms.volume / atoms.num_atoms) * 1e-30
+    kmax = (6 * pi ** 2 / (atmV))**(1 / 3)
+    k_list = np.linspace(0, kmax, 50)
+    omega_list = vs * k_list
+    return k_list / kmax, omega_list / 1e12 / (2 * pi)
+
+
+def BvK_DOS(p, omega):
+    '''
+    Source: Supplemental Equation 
+    '''
+    #BvK DOS
+    atoms = Atoms.from_dict(p['atoms'])
+    et = ElasticTensor(p['elastic_tensor'])
+    vs = et.velocity_average(atoms)
+    atmV = (atoms.volume / atoms.num_atoms) * 1e-30
+    form_unit = get_natoms_form_unit(p)
+    kmax = (6 * pi ** 2 / (atmV))**(1 / 3)
+    omega0 = (2 / pi) * vs * kmax * hbar
+    omega_max = omega0 / icm_to_eV
+    vs = et.velocity_average(atoms)
+    # omegaD = et.debye_temperature_toberer(atoms) * kB
+    # omegaD = omegaD / icm_to_eV
+    omega_new = omega[omega < omega_max]
+    omega_new[0] = 1e-10 
+    k_omega = (2 * kmax / pi) * np.arcsin(omega_new / (omega0 / icm_to_eV))
+    vg_bvk = (omega0 / hbar) * (pi / (2 * kmax)) *\
+            np.cos(pi * k_omega / (2 * kmax))
+    vp_bvk = (omega0 / hbar /  k_omega) * np.sin(pi * k_omega/ (2 * kmax))
+    dos = 3 * (omega_new)** 2 / (2 * pi ** 2 * vg_bvk * vp_bvk ** 2)
+    pad0 = len(omega) - len(dos)
+    dos = np.pad(dos, (0,pad0))
+    int_dos = integrate_dos(omega, dos)
+    scale = (int_dos / form_unit) / 3.0
+    dos = dos / scale 
+    return dos
+
+
+def BvK_DOS_2(p, omega):
+    atoms = Atoms.from_dict(p['atoms'])
+    et = ElasticTensor(p['elastic_tensor'])
+    vs = et.velocity_average(atoms)
+    atmV = (atoms.volume / atoms.num_atoms) * 1e-30
+    form_unit = get_natoms_form_unit(p)
+    kmax = (6 * pi ** 2 / (atmV))**(1 / 3)
+    omega0 = (2 / pi) * vs * kmax * hbar
+    omega0 = omega0 / icm_to_eV
+    print(omega0)
+    omega_new = omega[omega < omega0]
+    dos = (1 / (2 * pi ** 2)) * ((2 / pi) *\
+        np.arcsin(omega_new / (omega0)))**2 * (2 / pi) *\
+        (1 / omega0) * (1 / (1 - (omega_new / omega0) ** 2) ** (1/2))  
+    pad0 = len(omega) - len(dos)
+    dos = np.pad(dos, (0,pad0))
+    int_dos = integrate_dos(omega, dos)
+    scale = (int_dos / form_unit) / 3.0
+    dos = dos / scale 
+    return dos
+
+def BvK_dispersion(p):
+    atoms = Atoms.from_dict(p['atoms'])
+    et = ElasticTensor(p['elastic_tensor'])
+    vs = et.velocity_average(atoms)  
+    atmV = (atoms.volume / atoms.num_atoms) * 1e-30
+    kmax = (6 * pi ** 2 / (atmV))**(1 / 3)
+    k_list = np.linspace(0, kmax, 50)
+    omega_list = (2 / pi) * vs * kmax * np.sin(pi * k_list / (2 * kmax))
+    return k_list / kmax, omega_list / 1e12 / (2 * pi)   
 
 def integrate_dos(omega, dos):
     omega = omega * icm_to_eV
@@ -201,7 +292,7 @@ def isotopic_tau_scaling(p, omega):
     
     
 if __name__ == '__main__':
-    dft_3d = jdata("edos_pdos")
+    dft_3d = jdata("dft_3d")
     max_samples = 10
     
     jid = 'JVASP-1076'
@@ -222,13 +313,16 @@ if __name__ == '__main__':
     jid = p["jid"]
     
     #scale = get_scale_quantity_from_db_entry(p)
-    jid_list.append(jid)
-    target = np.array(p['pdos_elast'])
-    freq = np.linspace(0, 1000, len(target))
-    int_DOS.append(integrate_dos(freq, target))
-    S_vib.append(vibrational_entropy(freq, target, T = 1000))
-    Cp.append(heat_capacity(freq, target, T = 1000))
-    tau.append(isotopic_tau(p, freq, target))
+    # jid_list.append(jid)
+    # target = np.array(p['pdos_elast'])
+    freq = np.linspace(0, 1000, 200)
+    # int_DOS.append(integrate_dos(freq, target))
+    # S_vib.append(vibrational_entropy(freq, target, T = 1000))
+    # Cp.append(heat_capacity(freq, target, T = 1000))
+    # tau.append(isotopic_tau(p, freq, target))
+    
+    debye_dos = debye_DOS(p, freq)
+    bvk_dos = BvK_DOS_2(p,freq)
     
     output = {'JID' : jid_list,
               'integrated_DOS' : int_DOS,
@@ -236,9 +330,9 @@ if __name__ == '__main__':
               'Cp' : Cp}
     
     
-    df = pd.DataFrame(output)
+    #df = pd.DataFrame(output)
     
-    df.to_csv('thermal_props.csv')
+    #df.to_csv('thermal_props.csv')
     
     
     def vib_scaling(omega, T = 300):
