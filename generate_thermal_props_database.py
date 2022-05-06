@@ -28,20 +28,23 @@ import json
 
 
 icm_to_thz = 2.99792458e-2
-datafile = '../alignn_props_run11/'
-f = open(datafile + 'ids_train_val_test.json',)
+datafile = '../alignn_props_run21/'
+jsonfile = datafile + 'PhononData-Freq-300_1000_20.json'
 
-ids_split = json.load(f)
+with open(jsonfile) as f:
+    pdos_dict = json.load(f)
 
-jvasp_list = sum([v for v in ids_split.values()], [])
+# ids_split = json.load(f)
 
-dft_3d = jdata("edos_pdos")
+# jvasp_list = sum([v for v in ids_split.values()], [])
+
+# dft_3d = jdata("edos_pdos")
 
 T = 300
 
 freq = np.arange(-300, 1000, 20)
 
-jid_list = []
+jvasp_list = []
 Svib_list = []
 Cv_list = []
 dos_ithz = []
@@ -58,21 +61,22 @@ def max_intensity_db(db):
 
 #max_total = max_intensity_db(dft_3d)
 i = 0
-for jvasp in jvasp_list:
-    jid = jvasp
-    start = jid.find('JVASP')
-    end = jid.find('.vasp')
-    jid = jid[start:end] 
-    match = next(i for i in dft_3d if i["jid"] == jid)
+for p in pdos_dict:
+    pos = 'POSCAR-{}.vasp'.format(p['jid'])
+    # jid = jvasp
+    # start = jid.find('JVASP')
+    # end = jid.find('.vasp')
+    # jid = jid[start:end] 
+    # match = next(i for i in dft_3d if i["jid"] == jid)
 #    atoms = Atoms.from_dict(match["atoms"])
 #    atoms.write_poscar(datafile + jvasp)
 #    scale = pint.get_natoms_from_db_entry(match)
 #    s = Spectrum(x= freq, y=np.array(match['pdos_elast']) * scale)
-    form_unit = pint.get_natoms_form_unit(match)
-    DOS = np.array(match['pdos_elast'])
+    form_unit = pint.get_natoms_form_unit(p)
+    DOS = np.array(p['pdos_elast'])
     stable = pint.check_dynamical_stability(freq, DOS)
     if stable:
-        jid_list.append(jid) 
+        jvasp_list.append(pos) 
         intDOS_t = pint.integrate_dos(freq, DOS)
         scale = (intDOS_t / form_unit) / 3.0
         DOS = DOS / scale
