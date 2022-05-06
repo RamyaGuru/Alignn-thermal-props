@@ -11,17 +11,18 @@ Multiply by molar mass and rank
 import pandas as pd
 import numpy as np 
 
+run = 'run21'
 
-dft3d_df = pd.read_csv('output_files/thermal_props_dft3d.csv')
+dft3d_df = pd.read_csv('output_files/{}_thermal_props_dft3d.csv'.format(run))
 
-mol_mass = np.load('output_files/molar_mass_dft3d.npy')
+mol_mass = np.load('molar_mass_dft3d.npy')
 
-form_unit = np.load('output_files/form_unit.npy')
+form_unit = np.load('form_unit.npy')
 
 
-Svib_kg = dft3d_df['S_vib'] / mol_mass
+Svib_kg = dft3d_df['Svib_kg'] 
 
-Cv_kg = dft3d_df['Cv'] / mol_mass
+Cv_kg = dft3d_df['Cv_kg'] 
 
 Cv_max_indx = np.argsort(Cv_kg)[-50:]
 Cv_min_indx = np.argsort(Cv_kg)[:50]

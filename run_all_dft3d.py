@@ -19,10 +19,12 @@ max_neighbors=20 #12
 gcn_layers=6
 if torch.cuda.is_available():
     device = torch.device("cuda") # might have to change to "cpu"
+    
+run = 'run21'
 
 #For phononDos make output_features 200, also add gcn_layers etc. parameters if different from default ALIGNN parameters
 model = ALIGNN(ALIGNNConfig(name="alignn", alignn_layers=alignn_layers, gcn_layers=gcn_layers, output_features=201))
-model.load_state_dict(torch.load('../../run11/temp/checkpoint_600.pt', map_location=device)["model"])
+model.load_state_dict(torch.load('../../{}/temp/checkpoint_600.pt'.format(run), map_location=device)["model"])
 model.to(device)
 model.eval()
 atoms_array=[]
@@ -30,13 +32,12 @@ atoms_array=[]
 dft_3d=data('dft_3d') #dft_3d, cod
 for ii,i in enumerate(dft_3d):
   atoms_array.append(Atoms.from_dict(i['atoms']))
-  if ii==5:
-    break
+
 get_multiple_predictions(atoms_array=atoms_array,model=model,max_neighbors=max_neighbors, output_features = 201)
-import pandas as pd
-df=pd.read_json('pred_data.json')
-df.sort_values('pred',ascending=False)
-print(df)
+#import pandas as pd
+# df=pd.read_json('{}_pred_data.json'.format(run))
+# df.sort_values('pred',ascending=False)
+# print(df)
 
 
 

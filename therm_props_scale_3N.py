@@ -23,12 +23,17 @@ from sklearn.metrics import mean_absolute_error
 
 import matplotlib.pyplot as plt
 
-input_file = '/temp/multi_out_predictions.json'
+run = 'run21'
+input_file = '../../{}/true_stable_predictions.json'.format(run)
 
-run = 'run11'
 
-with open('../../' + run + input_file) as json_file:
+
+with open(input_file) as json_file:
     dos_dict = json.load(json_file)
+    
+full_freq = np.linspace(-300, 1000, len(dos_dict[0]['target']))
+zero_indx = np.where(full_freq > 0)[0][0] - 1
+print(zero_indx)
 
 edos_pdos = jdata("edos_pdos")
 dft_3d = jdata("dft_3d")
@@ -62,8 +67,8 @@ for i in dos_dict:
     # Get number of atoms in formula unit
     #atoms = Atoms.from_dict(p['atoms'])
     form_unit = pint.get_natoms_form_unit(match)
-    target = np.array(i['target'])
-    pred = np.array(i['predictions'])
+    target = np.array(i['target'])[zero_indx:]
+    pred = np.array(i['predictions'])[zero_indx:]
     freq = np.linspace(0, 1000, len(target))
     #Store target thermal properties
     intDOS_t = pint.integrate_dos(freq, target)
@@ -106,7 +111,7 @@ therm_output = {'JID' : jid_list,
           'Cp (J/mol/K) DebT' : {'target': Cv_debT_t , 'prediction': Cv_debT_p}}
 
 
-with open('output_files/thermal_props_scale_3N.json', 'w') as out_file:
+with open('output_files/{}_thermal_props_scale_3N.json'.format(run), 'w') as out_file:
     json.dump(therm_output, out_file)
     
 

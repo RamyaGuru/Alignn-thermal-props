@@ -289,6 +289,18 @@ def isotopic_tau_scaling(p, omega):
     omega = omega * icm_to_thz #* 1e12
     tau = (pi / 6) * (atmV * gamma * omega ** 2)
     return tau # / 1e12) #Integrate over omega THz?   
+
+
+def check_dynamical_stability(omega, dos):
+    zero_indx = np.where(omega > 0)[0][0] - 1
+    neg_freq = np.linspace(omega[0], 0, zero_indx)
+    intdos_neg = np.trapz(neg_freq, dos[:zero_indx])
+    intdos_full = np.trapz(omega, dos)
+    stable = 1
+    if intdos_neg / intdos_full > 0.1:
+        stable = 0
+    return stable
+    
     
     
 if __name__ == '__main__':

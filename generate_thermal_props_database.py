@@ -39,6 +39,8 @@ dft_3d = jdata("edos_pdos")
 
 T = 300
 
+freq = np.arange(-300, 1000, 20)
+
 jid_list = []
 Svib_list = []
 Cv_list = []
@@ -55,26 +57,29 @@ def max_intensity_db(db):
     return max_total
 
 #max_total = max_intensity_db(dft_3d)
-
+i = 0
 for jvasp in jvasp_list:
     jid = jvasp
     start = jid.find('JVASP')
     end = jid.find('.vasp')
-    jid = jid[start:end]
-    jid_list.append(jid)  
+    jid = jid[start:end] 
     match = next(i for i in dft_3d if i["jid"] == jid)
 #    atoms = Atoms.from_dict(match["atoms"])
 #    atoms.write_poscar(datafile + jvasp)
 #    scale = pint.get_natoms_from_db_entry(match)
-    freq = np.arange(0, 1000, 5)
 #    s = Spectrum(x= freq, y=np.array(match['pdos_elast']) * scale)
     form_unit = pint.get_natoms_form_unit(match)
     DOS = np.array(match['pdos_elast'])
-    intDOS_t = pint.integrate_dos(freq, DOS)
-    scale = (intDOS_t / form_unit) / 3.0
-    DOS = DOS / scale
-    Svib_list.append(pint.vibrational_entropy(freq, DOS, T))
-    Cv_list.append(pint.heat_capacity(freq, DOS, T))
+    stable = pint.check_dynamical_stability(freq, DOS)
+    if stable:
+        jid_list.append(jid) 
+        intDOS_t = pint.integrate_dos(freq, DOS)
+        scale = (intDOS_t / form_unit) / 3.0
+        DOS = DOS / scale
+        Svib_list.append(pint.vibrational_entropy(freq, DOS, T))
+        Cv_list.append(pint.heat_capacity(freq, DOS, T))
+        i = i+1
+    print(i)
     # dos_orig_list = np.array(match['pdos_elast'])
     # dos_orig_str = ",".join(map(str, dos_orig_list))
     # dos_orig.append(dos_orig_str)
@@ -82,8 +87,8 @@ for jvasp in jvasp_list:
     # dos_ithz_str = ",".join(map(str, dos_ithz_list))
     # dos_ithz.append(dos_ithz_str)
     
-f1 = open(datafile + 'id_prop_Cv_3N.csv', 'w+')
-f2 = open(datafile + 'id_prop_Svib_3N.csv', 'w+')
+f1 = open(datafile + 'id_prop_Cv_3N_stable.csv', 'w+')
+f2 = open(datafile + 'id_prop_Svib_3N_stable.csv', 'w+')
 #f3 = open(datafile + 'id_prop_dos_ithz.csv', 'w+')
 
 for i in range(len(jvasp_list)):

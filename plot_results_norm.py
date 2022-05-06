@@ -22,9 +22,10 @@ from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from math import sqrt
 import json
 
+run = 'run21'
 
 #Open the Target and Predicted DOS thermal properties
-with open('output_files/thermal_props_scale_3N.json') as therm_file:
+with open('output_files/{}_thermal_props_scale_3N.json'.format(run)) as therm_file:
     therm_dict = json.load(therm_file)
 
 prop_list = ['S_vib (J/mol/K)', 'Cp (J/mol/K)']
@@ -72,95 +73,95 @@ for prop2 in prop_list_2:
 Compare target distribution to the debye approximation
 '''    
 
-bvK_Cv = np.array(therm_debye_dict['Cv_bvk'])
-debye_Cv = np.array(therm_debye_dict['Cv'])
-target_Cv = np.array(therm_dict['Cp (J/mol/K)']['target'])
+# bvK_Cv = np.array(therm_debye_dict['Cv_bvk'])
+# debye_Cv = np.array(therm_debye_dict['Cv'])
+# target_Cv = np.array(therm_dict['Cp (J/mol/K)']['target'])
 
-bvK_Cv = bvK_Cv[~np.isnan(debye_Cv)]
-target_Cv = target_Cv[~np.isnan(debye_Cv)]
-debye_Cv = debye_Cv[~np.isnan(debye_Cv)]
+# bvK_Cv = bvK_Cv[~np.isnan(debye_Cv)]
+# target_Cv = target_Cv[~np.isnan(debye_Cv)]
+# debye_Cv = debye_Cv[~np.isnan(debye_Cv)]
 
-mae_debye_Cv = mean_absolute_error(target_Cv, debye_Cv)
-mae_bvK_Cv = mean_absolute_error(target_Cv, bvK_Cv)
+# mae_debye_Cv = mean_absolute_error(target_Cv, debye_Cv)
+# mae_bvK_Cv = mean_absolute_error(target_Cv, bvK_Cv)
 
-r2_debye_Cv = r2_score(target_Cv, debye_Cv)
-r2_bvK_Cv = r2_score(target_Cv, bvK_Cv)
+# r2_debye_Cv = r2_score(target_Cv, debye_Cv)
+# r2_bvK_Cv = r2_score(target_Cv, bvK_Cv)
 
-mad_debye_Cv = mean_absolute_deviation(target_Cv)
-mad_bvK_Cv = mean_absolute_deviation(target_Cv)
+# mad_debye_Cv = mean_absolute_deviation(target_Cv)
+# mad_bvK_Cv = mean_absolute_deviation(target_Cv)
 
-bvK_Svib = np.array(therm_debye_dict['Svib_bvk'])
-debye_Svib = np.array(therm_debye_dict['Svib'])
-target_Svib = np.array(therm_dict['S_vib (J/mol/K)']['target'])
+# bvK_Svib = np.array(therm_debye_dict['Svib_bvk'])
+# debye_Svib = np.array(therm_debye_dict['Svib'])
+# target_Svib = np.array(therm_dict['S_vib (J/mol/K)']['target'])
 
-bvK_Svib = bvK_Svib[~np.isnan(debye_Svib)]
-target_Svib = target_Svib[~np.isnan(debye_Svib)]
-debye_Svib = debye_Svib[~np.isnan(debye_Svib)]
+# bvK_Svib = bvK_Svib[~np.isnan(debye_Svib)]
+# target_Svib = target_Svib[~np.isnan(debye_Svib)]
+# debye_Svib = debye_Svib[~np.isnan(debye_Svib)]
 
-mae_debye_Svib = mean_absolute_error(target_Svib, debye_Svib)
-mae_bvK_Svib = mean_absolute_error(target_Svib, bvK_Svib)
+# mae_debye_Svib = mean_absolute_error(target_Svib, debye_Svib)
+# mae_bvK_Svib = mean_absolute_error(target_Svib, bvK_Svib)
 
-r2_debye_Svib = r2_score(target_Svib, debye_Svib)
-r2_bvK_Svib = r2_score(target_Svib, bvK_Svib)
+# r2_debye_Svib = r2_score(target_Svib, debye_Svib)
+# r2_bvK_Svib = r2_score(target_Svib, bvK_Svib)
 
-mad_debye_Svib = mean_absolute_deviation(target_Svib)
-mad_bvK_Svib = mean_absolute_deviation(target_Svib)
+# mad_debye_Svib = mean_absolute_deviation(target_Svib)
+# mad_bvK_Svib = mean_absolute_deviation(target_Svib)
 
 '''
 Plots of Debye and Born von Karman versus target distribution
 '''
 
-from jarvis.db.figshare import data as jdata
+# from jarvis.db.figshare import data as jdata
 
-edos_pdos = jdata("edos_pdos")
-dft_3d = jdata("dft_3d")
+# edos_pdos = jdata("edos_pdos")
+# dft_3d = jdata("dft_3d")
 
-jid = 'JVASP-32'
+# jid = 'JVASP-32'
 
-match = next(i for i in dft_3d if i["jid"] == jid)
-match_pdos = next(i for i in edos_pdos if i["jid"] == jid)
+# match = next(i for i in dft_3d if i["jid"] == jid)
+# match_pdos = next(i for i in edos_pdos if i["jid"] == jid)
 
-dos = np.array(match_pdos['pdos_elast'])
-freq = np.linspace(0, 1000, len(dos))
+# dos = np.array(match_pdos['pdos_elast'])
+# freq = np.linspace(0, 1000, len(dos))
 
 
-int_target = pint.integrate_dos(freq,dos)
-form_unit = pint.get_natoms_form_unit(match)
-scale = int_target / form_unit / 3
-dos = dos / scale
+# int_target = pint.integrate_dos(freq,dos)
+# form_unit = pint.get_natoms_form_unit(match)
+# scale = int_target / form_unit / 3
+# dos = dos / scale
 
-debye_dos = pint.debye_DOS(match, freq)
-debye_k, debye_omega = pint.debye_dispersion(match)
+# debye_dos = pint.debye_DOS(match, freq)
+# debye_k, debye_omega = pint.debye_dispersion(match)
 
-bvk_dos = pint.BvK_DOS_2(match,freq)
-bvk_k, bvk_omega = pint.BvK_dispersion(match)
+# bvk_dos = pint.BvK_DOS_2(match,freq)
+# bvk_k, bvk_omega = pint.BvK_dispersion(match)
 
-fig, ax = plt.subplots(1, 3, figsize = (8, 3))
-fig.tight_layout(w_pad = 2)
+# fig, ax = plt.subplots(1, 3, figsize = (8, 3))
+# fig.tight_layout(w_pad = 2)
 
-plt.subplot(1, 3, 1)
-plt.plot(debye_k, debye_omega, 'xkcd:medium blue')
-plt.plot(bvk_k, bvk_omega, 'xkcd:blood red')
-fig.text(0.17, 0.7, 'Debye', va='center', fontsize = 14, color = 'xkcd:medium blue')
-fig.text(0.22, 0.46, 'BvK', va='center', fontsize = 14, color = 'xkcd:blood red')
-plt.xticks([0, 1], ['0', r'k$_{\mathrm{max}}$'])
-plt.xlim([0, 1])
-plt.ylim([0, 25])
-plt.ylabel('Frequency (THz)')
+# plt.subplot(1, 3, 1)
+# plt.plot(debye_k, debye_omega, 'xkcd:medium blue')
+# plt.plot(bvk_k, bvk_omega, 'xkcd:blood red')
+# fig.text(0.17, 0.7, 'Debye', va='center', fontsize = 14, color = 'xkcd:medium blue')
+# fig.text(0.22, 0.46, 'BvK', va='center', fontsize = 14, color = 'xkcd:blood red')
+# plt.xticks([0, 1], ['0', r'k$_{\mathrm{max}}$'])
+# plt.xlim([0, 1])
+# plt.ylim([0, 25])
+# plt.ylabel('Frequency (THz)')
 
-plt.subplot(1, 3, 2)
-plt.plot(freq, dos, 'xkcd:black')
-plt.plot(freq, debye_dos, 'xkcd:medium blue')
-plt.ylim(0, 0.07)
-plt.xlabel(r'Frequency (cm$^{-1}$)')
-plt.ylabel('Density of States')
+# plt.subplot(1, 3, 2)
+# plt.plot(freq, dos, 'xkcd:black')
+# plt.plot(freq, debye_dos, 'xkcd:medium blue')
+# plt.ylim(0, 0.07)
+# plt.xlabel(r'Frequency (cm$^{-1}$)')
+# plt.ylabel('Density of States')
 
-plt.subplot(1, 3, 3)
-plt.plot(freq, dos, 'xkcd:black')
-plt.plot(freq, bvk_dos, 'xkcd:blood red')
-plt.xlabel(r'Frequency (cm$^{-1}$)')
-plt.ylim(0, 0.1)
-plt.savefig('bvk_debye_comp.pdf', bbox_inches = 'tight')
+# plt.subplot(1, 3, 3)
+# plt.plot(freq, dos, 'xkcd:black')
+# plt.plot(freq, bvk_dos, 'xkcd:blood red')
+# plt.xlabel(r'Frequency (cm$^{-1}$)')
+# plt.ylim(0, 0.1)
+# plt.savefig('bvk_debye_comp.pdf', bbox_inches = 'tight')
 
 
 '''
@@ -180,7 +181,7 @@ VIBRATIONAL ENTROPY
 '''
 label = 'S_vib (J/mol/K)'
 
-plt.subplot(2, 2, 1)    
+plt.subplot(2, 2, 3)    
 
 histo_svib = np.histogram2d(therm_dict[label]['target'], therm_dict[label]['prediction'], bins = 100)
 
@@ -197,17 +198,17 @@ for p in pairs:
     c_svib.append(histo_svib[0][p])
     
 
-plt.scatter(therm_dict[label]['target'], therm_dict[label]['prediction'], s = 3, c= c_svib, alpha=0.5, cmap = 'Spectral_r', vmax = 100)
+plt.scatter(therm_dict[label]['target'], therm_dict[label]['prediction'], s = 3, c= c_svib, alpha=0.5, cmap = 'Spectral_r', vmax = 80)
 
 x = np.linspace(0,4000,10)
 y = np.linspace(0,4000,10)
 
 
-plt.plot(x, y, linewidth=2, color='xkcd:black')
+plt.plot(x, y, linewidth=1, color='xkcd:black')
 
-plt.plot(x, y - (np.quantile(therm_dict[label]['target'], 0.5) - np.quantile(therm_dict[label]['target'], 0.25)), linestyle='--', color='xkcd:black')
+plt.plot(x, y - (np.quantile(therm_dict[label]['target'], 0.5) - np.quantile(therm_dict[label]['target'], 0.25)), linewidth=1, linestyle='--', color='xkcd:black')
 
-plt.plot(x, y + (np.quantile(therm_dict[label]['target'], 0.75) - np.quantile(therm_dict[label]['target'], 0.5)), linestyle='--', color='xkcd:black')
+plt.plot(x, y + (np.quantile(therm_dict[label]['target'], 0.75) - np.quantile(therm_dict[label]['target'], 0.5)), linewidth=1, linestyle='--', color='xkcd:black')
 
 
 plt.xlim([0, 4000])
@@ -222,7 +223,7 @@ plt.colorbar(pad=0.01)
 HEAT CAPACITY -- Room Temperature
 '''
 
-plt.subplot(2,2,2)
+plt.subplot(2,2,1)
 
 label = 'Cp (J/mol/K)'
 
@@ -240,16 +241,16 @@ c_cv = []
 for p in pairs:
     c_cv.append(histo_cv[0][p])
 
-plt.scatter(therm_dict[label]['target'], therm_dict[label]['prediction'], s = 3, c= c_cv, alpha=0.5, cmap = 'Spectral_r', vmax = 100)
+plt.scatter(therm_dict[label]['target'], therm_dict[label]['prediction'], s = 3, c= c_cv, alpha=0.5, cmap = 'Spectral_r', vmax = 80)
 
 x = np.linspace(0,300,10)
 y = np.linspace(0,300,10)
 
-plt.plot(x, y, linewidth=2, color='xkcd:black')
+plt.plot(x, y, linewidth=1, color='xkcd:black')
 
-plt.plot(x, y - (np.quantile(therm_dict[label]['target'], 0.5) - np.quantile(therm_dict[label]['target'], 0.25)), linestyle='--', color='xkcd:black')
+plt.plot(x, y - (np.quantile(therm_dict[label]['target'], 0.5) - np.quantile(therm_dict[label]['target'], 0.25)), linewidth=1, linestyle='--', color='xkcd:black')
 
-plt.plot(x, y + (np.quantile(therm_dict[label]['target'], 0.75) - np.quantile(therm_dict[label]['target'], 0.5)), linestyle='--', color='xkcd:black')
+plt.plot(x, y + (np.quantile(therm_dict[label]['target'], 0.75) - np.quantile(therm_dict[label]['target'], 0.5)), linewidth=1, linestyle='--', color='xkcd:black')
 
 plt.ylim([0, 300])
 plt.xlim([0,300])
@@ -265,7 +266,7 @@ plt.colorbar(pad=0.01)
 HEAT CAPACITY -- Half Debye Temperature
 '''
 
-plt.subplot(2,2,4)
+plt.subplot(2,2,2)
 
 label = 'Cp (J/mol/K) DebT'
 
@@ -292,16 +293,16 @@ for p in pairs:
     c_cv_dT.append(histo_cv_dT[0][p])
 
 
-plt.scatter(target, prediction, s = 3, c= c_cv_dT, alpha=0.5, cmap = 'Spectral_r', vmax = 100)
+plt.scatter(target, prediction, s = 3, c= c_cv_dT, alpha=0.5, cmap = 'Spectral_r', vmax = 80)
 
 x = np.linspace(0,300,10)
 y = np.linspace(0,300,10)
 
-plt.plot(x, y, linewidth=2, color='xkcd:black')
+plt.plot(x, y, linewidth=1, color='xkcd:black')
 
-plt.plot(x, y - (np.quantile(target, 0.5) - np.quantile(target, 0.25)), linestyle='--', color='xkcd:black')
+plt.plot(x, y - (np.quantile(target, 0.5) - np.quantile(target, 0.25)), linestyle='--', linewidth=1, color='xkcd:black')
 
-plt.plot(x, y + (np.quantile(target, 0.75) - np.quantile(target, 0.5)), linestyle='--', color='xkcd:black')
+plt.plot(x, y + (np.quantile(target, 0.75) - np.quantile(target, 0.5)), linestyle='--', linewidth=1, color='xkcd:black')
 
 plt.ylim([0, 300])
 plt.xlim([0,300])
@@ -320,7 +321,7 @@ plt.colorbar(label = 'Sample Count', pad=0.01)
 Isotope Scattering
 '''               
 
-plt.subplot(2,2,3)
+plt.subplot(2,2,4)
 
 label = 'iso_scattering (Hz)'
 
@@ -347,26 +348,26 @@ for p in pairs:
     c_iso.append(histo_iso[0][p])
 
 
-plt.scatter(target, prediction, s = 3, c= c_iso, alpha=0.5, cmap = 'Spectral_r', vmax = 100)
+plt.scatter(target, prediction, s = 3, c= c_iso, alpha=0.5, cmap = 'Spectral_r', vmax = 80)
 
-x = np.linspace(0,100,10)
-y = np.linspace(0,100,10)
+x = np.linspace(0,50,10)
+y = np.linspace(0,50,10)
 
-plt.plot(x, y, linewidth=2, color='xkcd:black')
+plt.plot(x, y, linewidth=1, color='xkcd:black')
 
-plt.plot(x, y - (np.quantile(target, 0.5) - np.quantile(target, 0.25)), linestyle='--', color='xkcd:black')
+plt.plot(x, y - (np.quantile(target, 0.5) - np.quantile(target, 0.25)), linestyle='--', linewidth=1, color='xkcd:black')
 
-plt.plot(x, y + (np.quantile(target, 0.75) - np.quantile(target, 0.5)), linestyle='--', color='xkcd:black')
+plt.plot(x, y + (np.quantile(target, 0.75) - np.quantile(target, 0.5)), linestyle='--', linewidth=1, color='xkcd:black')
 
-plt.ylim([0, 100])
-plt.xlim([0,100])
+plt.ylim([0, 50])
+plt.xlim([0,50])
 
 
 plt.ylabel(r'Predicted $\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 9)
 plt.xlabel(r'Target $\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 9)
 
 plt.colorbar(pad=0.01)
-plt.savefig('figures/therm_props_multipanel_mockup.pdf', bbox_inches = 'tight')
+plt.savefig('figures/{}_therm_props_multipanel_mockup.pdf'.format(run), bbox_inches = 'tight')
 
 '''
 Histograms
@@ -376,20 +377,21 @@ plt.figure()
 fig, ax = plt.subplots(1, 4, constrained_layout = True, figsize = (8, 2))
 fig.tight_layout()
 
-plt.subplot(1,4,1)
+plt.subplot(1,4,3)
 #fig.text(0.21, 0.25, '(e)', va='center', fontsize = 18)
 
 plt.hist(therm_dict['S_vib (J/mol/K)']['target'], 50, color = 'xkcd:bluey green')
-plt.ylabel('Counts', fontsize = 12)
 plt.xlabel(r'RT S$_{\mathrm{vib}}$ (J/mol/K)', fontsize = 12)
 
-plt.subplot(1,4,2)
-plt.hist(np.array(therm_dict['iso_scattering (Hz)']['target']) / 1e9, 50, color = 'xkcd:bluey green')
+plt.subplot(1,4,4)
+plt.hist(np.array(therm_dict['iso_scattering (Hz)']['target']) / 1e9, 200, color = 'xkcd:bluey green')
 #plt.ylabel('Counts', fontsize = 12)
 plt.xlabel(r'$\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 12)
+plt.xlim([0,50])
 
-plt.subplot(1,4,3)
+plt.subplot(1,4,1)
 plt.hist(therm_dict['Cp (J/mol/K)']['target'], 50, color = 'xkcd:bluey green')
+plt.ylabel('Counts', fontsize = 12)
 plt.xlabel(r'RT C$_{\mathrm{V}}$ (J/mol/K)', fontsize = 12)
 #fig.text(0.45, 0.25, '(f)', va='center', fontsize = 18)
 
@@ -397,21 +399,21 @@ plt.xlabel(r'RT C$_{\mathrm{V}}$ (J/mol/K)', fontsize = 12)
 
 
 
-plt.subplot(1,4,4)
+plt.subplot(1,4,2)
 plt.hist(therm_dict['Cp (J/mol/K) DebT']['target'], 50, color = 'xkcd:bluey green')
 plt.xlabel(r'0.5$\theta_{\mathrm{D}}$ C$_{\mathrm{V}}$ (J/mol/K)', fontsize = 12)
 
 
-plt.savefig('figures/therm_props_histograms.pdf', bbox_inches = 'tight')
+plt.savefig('figures/{}_therm_props_histograms.pdf'.format(run), bbox_inches = 'tight')
 
 
 '''
 Fractions of Debye Temperature
 '''
 
-mae_cv_list = np.load('output_files/mae_debyeT_list.npy')
-mae_svib_list = np.load('output_files/mae_svib_debyeT_list.npy')
-debT_list = np.load('output_files/debyeT_list.npy')
+mae_cv_list = np.load('output_files/{}_mae_cv_debyeT_list.npy'.format(run))
+mae_svib_list = np.load('output_files/{}_mae_svib_debyeT_list.npy'.format(run))
+debT_list = np.load('output_files/{}_debyeT_list.npy'.format(run))
 
 frac = np.arange(0.1, 1.1, 0.1)
 
@@ -427,14 +429,14 @@ ax2 = ax[0].twinx()
 ax[0].scatter(frac, mae_cv_list, color = 'xkcd:black', s = 10, clip_on = False)
 ax[0].plot(frac, mae_cv_list, color = 'xkcd:black')
 plt.xlim([0,1])
-ax[0].set_ylim([0, 4])
+ax[0].set_ylim([0, 3])
 
 plt.xlabel(r'Fraction of $\theta_{\mathrm{D}}$')
 ax[0].set_ylabel(r'MAE in C$_{\mathrm{V}}$ (J/mol/K)')
 
 ax2.scatter(frac, mae_svib_list, color = 'xkcd:blood red', s = 10, clip_on = False)
 ax2.plot(frac, mae_svib_list, color = 'xkcd:blood red')
-ax2.set_ylim([0, 150])
+ax2.set_ylim([0, 30])
 
 
 ax[0].set_xlabel(r'Fraction of $\theta_{\mathrm{D}}$')
@@ -447,7 +449,7 @@ plt.hist(debT_list, 50, color = 'xkcd:bluey green')
 plt.xlabel(r'$\theta_{\mathrm{D}}$ (K)')
 plt.ylabel('Counts')
 
-plt.savefig('Cv_MAE_T.pdf', bbox_inches = 'tight')
+plt.savefig('figures/{}_Cv_MAE_T.pdf'.format(run), bbox_inches = 'tight')
 
 
 

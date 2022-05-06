@@ -24,9 +24,9 @@ from jarvis.db.figshare import data as jdata
 frac = np.arange(0.1, 1.1, 0.1)
 
 
-input_file = '/temp/multi_out_predictions.json'
+input_file = '/multi_out_predictions.json'
 
-run = 'run11'
+run = 'run21'
 
 with open('../../' + run + input_file) as json_file:
     dos_dict = json.load(json_file)
@@ -72,6 +72,6 @@ for f in frac:
     mae_list.append(mean_absolute_error(np.array(temp_t_cv)[~np.isnan(temp_t_cv)], np.array(temp_p_cv)[~np.isnan(temp_t_cv)]))
     mae_svib_list.append(mean_absolute_error(np.array(temp_t_svib)[~np.isnan(temp_t_svib)], np.array(temp_p_svib)[~np.isnan(temp_t_svib)]))
 
-np.save('output_files/debyeT_list.npy', debyeT_list)
-np.save('output_files/mae_cv_debyeT_list.npy', mae_list)
-np.save('output_files/mae_svib_debyeT_list.npy', mae_svib_list)
+np.save('output_files/{}_debyeT_list.npy'.format(run), debyeT_list)
+np.save('output_files/{}_mae_cv_debyeT_list.npy'.format(run), mae_list)
+np.save('output_files/{}_mae_svib_debyeT_list.npy'.format(run), mae_svib_list)

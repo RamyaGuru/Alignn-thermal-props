@@ -128,7 +128,7 @@ for c, p in zip(col, patches):
     
 plt.xlabel('Mean Absolute Error', fontsize = 14)
 plt.ylabel('Number of Samples', fontsize = 14)
-plt.savefig('mae_histogram.pdf', bbox_inches = 'tight')
+plt.savefig('figures/{}_mae_histogram.pdf'.format(run), bbox_inches = 'tight')
 plt.show()
 
 

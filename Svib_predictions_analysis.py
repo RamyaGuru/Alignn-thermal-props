@@ -13,7 +13,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pyvalem.formula import Formula
 
-with open('output_files/thermal_props_scale_3N.json') as therm_file:
+run = 'run21'
+
+with open('output_files/{}_thermal_props_scale_3N.json'.format(run)) as therm_file:
     therm_dict = json.load(therm_file)
     
     
@@ -25,14 +27,14 @@ resid = np.abs(np.array(Svib['target']) - np.array(Svib['prediction']))
 
 resid_max = np.argsort(resid)[-6:]
 
-dos_file = input_file = '../../run11/temp/predictions_augmented.json'
+dos_file = '../../{}/true_stable_predictions.json'.format(run)
 
-freq = np.linspace(0, 1000, 201)
+
 
 with open(dos_file) as json_file:
     dos_dict = json.load(json_file)
     
-    
+freq = np.linspace(-300, 1000, len(dos_dict[0]['target']))    
 
 fig, ax = plt.subplots(2, 3, figsize = (9, 4))
 fig.tight_layout(h_pad = 2)
@@ -54,4 +56,4 @@ for indx in resid_max:
 fig.text(-0.02, 0.5, 'Scaled DOS (a.u.)', va='center', rotation='vertical', fontsize = 14)
 fig.text(0.5, -0.02, r'Frequency (cm$^{-1}$)', ha='center', fontsize = 14)
 
-plt.savefig('Svib_high_residual.pdf', bbox_inches = 'tight')
+plt.savefig('figures/{}_Svib_high_residual.pdf'.format(run), bbox_inches = 'tight')
