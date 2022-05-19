@@ -16,9 +16,9 @@ import pdos_integration as pint
 
 #Open file just to get the JVASP IDs
 
-input_file = '/temp/multi_out_predictions.json'
+input_file = '/true_stable_predictions.json'
 
-run = 'run11'
+run = 'run21'
 
 with open('../../' + run + input_file) as json_file:
     dos_dict = json.load(json_file)

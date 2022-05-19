@@ -28,7 +28,7 @@ import json
 
 
 icm_to_thz = 2.99792458e-2
-datafile = '../alignn_props_run21/'
+datafile = '../../run21/'
 jsonfile = datafile + 'PhononData-Freq-300_1000_20.json'
 
 with open(jsonfile) as f:
@@ -42,7 +42,8 @@ with open(jsonfile) as f:
 
 T = 300
 
-freq = np.arange(-300, 1000, 20)
+freq = np.linspace(-300, 1000, 66)
+zero_indx = np.where(freq > 0)[0][0] - 1
 
 jvasp_list = []
 Svib_list = []
@@ -60,7 +61,6 @@ def max_intensity_db(db):
     return max_total
 
 #max_total = max_intensity_db(dft_3d)
-i = 0
 for p in pdos_dict:
     pos = 'POSCAR-{}.vasp'.format(p['jid'])
     # jid = jvasp
@@ -76,14 +76,14 @@ for p in pdos_dict:
     DOS = np.array(p['pdos_elast'])
     stable = pint.check_dynamical_stability(freq, DOS)
     if stable:
+        nfreq = freq[zero_indx:]
+        nDOS = DOS[zero_indx:]
         jvasp_list.append(pos) 
-        intDOS_t = pint.integrate_dos(freq, DOS)
+        intDOS_t = pint.integrate_dos(nfreq, nDOS)
         scale = (intDOS_t / form_unit) / 3.0
-        DOS = DOS / scale
-        Svib_list.append(pint.vibrational_entropy(freq, DOS, T))
-        Cv_list.append(pint.heat_capacity(freq, DOS, T))
-        i = i+1
-    print(i)
+        nDOS = nDOS / scale
+        Svib_list.append(pint.vibrational_entropy(nfreq, nDOS, T))
+        Cv_list.append(pint.heat_capacity(nfreq, nDOS, T))
     # dos_orig_list = np.array(match['pdos_elast'])
     # dos_orig_str = ",".join(map(str, dos_orig_list))
     # dos_orig.append(dos_orig_str)

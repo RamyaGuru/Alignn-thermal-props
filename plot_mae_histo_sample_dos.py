@@ -239,3 +239,22 @@ plt.savefig('figures/{}_sample_DOS_grid.pdf'.format(run), bbox_inches = 'tight')
 # fig.tight_layout()
 
 # plt.subplot(2, 4, 1)
+
+
+fig, ax = plt.subplots(1, 3, figsize = (10, 3))
+fig.tight_layout(h_pad = 2)
+freq = np.linspace(-300, 1000, len(dos_dict[0]['target']))
+for b in range(1,4):
+    indx = np.where(MAE_bin == b)[0][10]
+    dict_item = dos_dict[indx]
+    plt.subplot(1, 3, b)
+    plt.plot(freq, dict_item['target'],color = 'xkcd:black', linewidth = 2)
+    plt.plot(freq, dict_item['predictions'], color = 'xkcd:bluish purple', alpha = 0.8, linewidth = 2)
+    f = Formula(dict_item['composition'])
+    title_str = '$' + f.latex + '$' + '; MAE:' + str(round(dict_item['MAE'], 2))
+    plt.title(title_str)
+
+fig.text(-0.02, 0.5, 'Scaled DOS (a.u.)', va='center', rotation='vertical', fontsize = 14)
+fig.text(0.5, -0.02, r'Frequency (cm$^{-1}$)', ha='center', fontsize = 14)
+
+plt.savefig('figures/{}_nice_sample_DOS.pdf'.format(run), bbox_inches = 'tight')

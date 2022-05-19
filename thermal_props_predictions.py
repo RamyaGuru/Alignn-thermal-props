@@ -19,11 +19,14 @@ import numpy as np
 import pandas as pd
 from jarvis.core.atoms import Atoms
 from jarvis.core.specie import Specie
+from jarvis.db.figshare import data as jdata
 
 run = 'run21'
 
 with open('../../{}/pred_data.json'.format(run)) as json_file:
     dos_data = json.load(json_file)
+    
+dft_3d = jdata("dft_3d")
     
 
 full_freq = np.linspace(-300, 1000, len(dos_data[0]['pred']))
@@ -46,8 +49,10 @@ Svib = []
 Svib_kg = []
 iso_tau = []
 id_list = []
+jid_list = []
 mol_mass = []
 form_unit = []
+dos = []
 
 freq = np.linspace(0, 1000, len(stable_dos[0]['pred']))
 for p in stable_dos:
@@ -62,11 +67,13 @@ for p in stable_dos:
     fu = atoms.composition.reduced_formula
     form_unit.append(fu)
     mol_mass.append(mm)
-    id_list.append(p['id'])
+    id_list.append(int(p['id']))
+    jid_list.append(dft_3d[int(p['id'])]['jid'])
     int_dos = np.trapz(p['pred'], freq)
     fu_num = pint.get_natoms_form_unit(p)
     scale = (int_dos / fu_num) / 3.0
     p['pred'] = np.array(p['pred']) / scale
+    dos.append(p['pred'])
     Cv_mol = pint.heat_capacity(freq, p['pred'], T = 300)
     Cv.append(Cv_mol)
     Cv_kg.append(Cv_mol / mm * 1e3)
@@ -82,14 +89,15 @@ for p in stable_dos:
 np.save('molar_mass_dft3d', mol_mass)
 np.save('form_unit', form_unit)
 
-output = {'id' : id_list,
+output = { 'id' : id_list,
+        'jid' : jid_list,
+          'molar_mass' : mol_mass,
+          'form_unit' : form_unit,
           'isotope_scatt' : iso_tau,
           'Svib_kg' : Svib_kg,
           'Cv_kg' : Cv_kg}
 
-
 df = pd.DataFrame(output)
-
 df.to_csv('output_files/{}_thermal_props_dft3d.csv'.format(run))
 
 # for p in pred:
@@ -98,6 +106,6 @@ df.to_csv('output_files/{}_thermal_props_dft3d.csv'.format(run))
 #     plt.plot(freq, p['pred'])
     
     
-#
+
 
 

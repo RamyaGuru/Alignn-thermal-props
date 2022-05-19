@@ -24,6 +24,9 @@ import json
 
 run = 'run21'
 
+#Open Target and Predicted Direct ALIGNN Predicted Thermal Properties
+
+
 #Open the Target and Predicted DOS thermal properties
 with open('output_files/{}_thermal_props_scale_3N.json'.format(run)) as therm_file:
     therm_dict = json.load(therm_file)
@@ -73,96 +76,124 @@ for prop2 in prop_list_2:
 Compare target distribution to the debye approximation
 '''    
 
-# bvK_Cv = np.array(therm_debye_dict['Cv_bvk'])
-# debye_Cv = np.array(therm_debye_dict['Cv'])
-# target_Cv = np.array(therm_dict['Cp (J/mol/K)']['target'])
+bvK_Cv = np.array(therm_debye_dict['Cv_bvk'])
+debye_Cv = np.array(therm_debye_dict['Cv'])
+target_Cv = np.array(therm_dict['Cp (J/mol/K)']['target'])
 
-# bvK_Cv = bvK_Cv[~np.isnan(debye_Cv)]
-# target_Cv = target_Cv[~np.isnan(debye_Cv)]
-# debye_Cv = debye_Cv[~np.isnan(debye_Cv)]
+bvK_Cv = bvK_Cv[~np.isnan(debye_Cv)]
+target_Cv = target_Cv[~np.isnan(debye_Cv)]
+debye_Cv = debye_Cv[~np.isnan(debye_Cv)]
 
-# mae_debye_Cv = mean_absolute_error(target_Cv, debye_Cv)
-# mae_bvK_Cv = mean_absolute_error(target_Cv, bvK_Cv)
+mae_debye_Cv = mean_absolute_error(target_Cv, debye_Cv)
+mae_bvK_Cv = mean_absolute_error(target_Cv, bvK_Cv)
 
-# r2_debye_Cv = r2_score(target_Cv, debye_Cv)
-# r2_bvK_Cv = r2_score(target_Cv, bvK_Cv)
+r2_debye_Cv = r2_score(target_Cv, debye_Cv)
+r2_bvK_Cv = r2_score(target_Cv, bvK_Cv)
 
-# mad_debye_Cv = mean_absolute_deviation(target_Cv)
-# mad_bvK_Cv = mean_absolute_deviation(target_Cv)
+mad_debye_Cv = mean_absolute_deviation(target_Cv)
+mad_bvK_Cv = mean_absolute_deviation(target_Cv)
 
-# bvK_Svib = np.array(therm_debye_dict['Svib_bvk'])
-# debye_Svib = np.array(therm_debye_dict['Svib'])
-# target_Svib = np.array(therm_dict['S_vib (J/mol/K)']['target'])
+bvK_Svib = np.array(therm_debye_dict['Svib_bvk'])
+debye_Svib = np.array(therm_debye_dict['Svib'])
+target_Svib = np.array(therm_dict['S_vib (J/mol/K)']['target'])
 
-# bvK_Svib = bvK_Svib[~np.isnan(debye_Svib)]
-# target_Svib = target_Svib[~np.isnan(debye_Svib)]
-# debye_Svib = debye_Svib[~np.isnan(debye_Svib)]
+bvK_Svib = bvK_Svib[~np.isnan(debye_Svib)]
+target_Svib = target_Svib[~np.isnan(debye_Svib)]
+debye_Svib = debye_Svib[~np.isnan(debye_Svib)]
 
-# mae_debye_Svib = mean_absolute_error(target_Svib, debye_Svib)
-# mae_bvK_Svib = mean_absolute_error(target_Svib, bvK_Svib)
+mae_debye_Svib = mean_absolute_error(target_Svib, debye_Svib)
+mae_bvK_Svib = mean_absolute_error(target_Svib, bvK_Svib)
 
-# r2_debye_Svib = r2_score(target_Svib, debye_Svib)
-# r2_bvK_Svib = r2_score(target_Svib, bvK_Svib)
+r2_debye_Svib = r2_score(target_Svib, debye_Svib)
+r2_bvK_Svib = r2_score(target_Svib, bvK_Svib)
 
-# mad_debye_Svib = mean_absolute_deviation(target_Svib)
-# mad_bvK_Svib = mean_absolute_deviation(target_Svib)
+mad_debye_Svib = mean_absolute_deviation(target_Svib)
+mad_bvK_Svib = mean_absolute_deviation(target_Svib)
 
 '''
 Plots of Debye and Born von Karman versus target distribution
 '''
 
-# from jarvis.db.figshare import data as jdata
+from jarvis.db.figshare import data as jdata
 
-# edos_pdos = jdata("edos_pdos")
-# dft_3d = jdata("dft_3d")
+edos_pdos = jdata("edos_pdos")
+dft_3d = jdata("dft_3d")
 
-# jid = 'JVASP-32'
+jid = 'JVASP-32'
 
-# match = next(i for i in dft_3d if i["jid"] == jid)
-# match_pdos = next(i for i in edos_pdos if i["jid"] == jid)
+match = next(i for i in dft_3d if i["jid"] == jid)
+match_pdos = next(i for i in edos_pdos if i["jid"] == jid)
 
-# dos = np.array(match_pdos['pdos_elast'])
-# freq = np.linspace(0, 1000, len(dos))
+dos = np.array(match_pdos['pdos_elast'])
+freq = np.linspace(0, 1000, len(dos))
 
 
-# int_target = pint.integrate_dos(freq,dos)
-# form_unit = pint.get_natoms_form_unit(match)
-# scale = int_target / form_unit / 3
-# dos = dos / scale
+int_target = pint.integrate_dos(freq,dos)
+form_unit = pint.get_natoms_form_unit(match)
+scale = int_target / form_unit / 3
+dos = dos / scale
 
-# debye_dos = pint.debye_DOS(match, freq)
-# debye_k, debye_omega = pint.debye_dispersion(match)
+debye_dos = pint.debye_DOS(match, freq)
+debye_k, debye_omega = pint.debye_dispersion(match)
 
-# bvk_dos = pint.BvK_DOS_2(match,freq)
-# bvk_k, bvk_omega = pint.BvK_dispersion(match)
+bvk_dos = pint.BvK_DOS_2(match,freq)
+bvk_k, bvk_omega = pint.BvK_dispersion(match)
 
-# fig, ax = plt.subplots(1, 3, figsize = (8, 3))
-# fig.tight_layout(w_pad = 2)
+fig, ax = plt.subplots(1, 3, figsize = (8, 3))
+fig.tight_layout(w_pad = 2)
 
-# plt.subplot(1, 3, 1)
-# plt.plot(debye_k, debye_omega, 'xkcd:medium blue')
-# plt.plot(bvk_k, bvk_omega, 'xkcd:blood red')
-# fig.text(0.17, 0.7, 'Debye', va='center', fontsize = 14, color = 'xkcd:medium blue')
-# fig.text(0.22, 0.46, 'BvK', va='center', fontsize = 14, color = 'xkcd:blood red')
-# plt.xticks([0, 1], ['0', r'k$_{\mathrm{max}}$'])
-# plt.xlim([0, 1])
-# plt.ylim([0, 25])
-# plt.ylabel('Frequency (THz)')
+plt.subplot(1, 3, 1)
+plt.plot(debye_k, debye_omega, 'xkcd:medium blue')
+plt.plot(bvk_k, bvk_omega, 'xkcd:blood red')
+fig.text(0.17, 0.7, 'Debye', va='center', fontsize = 14, color = 'xkcd:medium blue')
+fig.text(0.22, 0.46, 'BvK', va='center', fontsize = 14, color = 'xkcd:blood red')
+plt.xticks([0, 1], ['0', r'k$_{\mathrm{max}}$'])
+plt.xlim([0, 1])
+plt.ylim([0, 25])
+plt.ylabel('Frequency (THz)')
 
-# plt.subplot(1, 3, 2)
-# plt.plot(freq, dos, 'xkcd:black')
-# plt.plot(freq, debye_dos, 'xkcd:medium blue')
-# plt.ylim(0, 0.07)
-# plt.xlabel(r'Frequency (cm$^{-1}$)')
-# plt.ylabel('Density of States')
+plt.subplot(1, 3, 2)
+plt.plot(freq, dos, 'xkcd:black')
+plt.plot(freq, debye_dos, 'xkcd:medium blue')
+plt.ylim(0, 0.07)
+plt.xlabel(r'Frequency (cm$^{-1}$)')
+plt.ylabel('Density of States')
 
-# plt.subplot(1, 3, 3)
-# plt.plot(freq, dos, 'xkcd:black')
-# plt.plot(freq, bvk_dos, 'xkcd:blood red')
-# plt.xlabel(r'Frequency (cm$^{-1}$)')
-# plt.ylim(0, 0.1)
-# plt.savefig('bvk_debye_comp.pdf', bbox_inches = 'tight')
+plt.subplot(1, 3, 3)
+plt.plot(freq, dos, 'xkcd:black')
+plt.plot(freq, bvk_dos, 'xkcd:blood red')
+plt.xlabel(r'Frequency (cm$^{-1}$)')
+plt.ylim(0, 0.1)
+plt.savefig('bvk_debye_comp.pdf', bbox_inches = 'tight')
 
+'''
+Transparent DOS Schematics
+'''
+plt.figure()
+plt.plot(freq, dos, 'xkcd:black', linewidth = 4)
+plt.plot(freq, debye_dos, 'xkcd:blood red', linewidth = 4)
+plt.yticks([])
+plt.xticks([])
+plt.savefig('debye_disp_schem.pdf', bbox_inches = 'tight', transparent = True)
+
+plt.figure()
+plt.plot(freq, dos, 'xkcd:black', linewidth = 4)
+plt.yticks([])
+plt.xticks([])
+plt.savefig('disp_schem.pdf', bbox_inches = 'tight', transparent = True)
+
+
+#Longer frequency range
+long_dos = np.pad(dos, [40,20])
+long_freq = np.linspace(-800, 1400, len(long_dos))
+
+fig = plt.figure(frameon = False)
+ax = fig.add_axes([0, 0, 1, 1])
+ax.axis('off')
+plt.plot(long_freq, long_dos, 'xkcd:black', linewidth = 4)
+plt.yticks([])
+plt.xticks([])
+plt.savefig('long_disp_schem.pdf', bbox_inches = 'tight', transparent = True)
 
 '''
 Plot of room temperature thermal properties
@@ -214,8 +245,8 @@ plt.plot(x, y + (np.quantile(therm_dict[label]['target'], 0.75) - np.quantile(th
 plt.xlim([0, 4000])
 plt.ylim([0, 4000])
 
-plt.ylabel(r'Predicted S$_{\mathrm{vib}}$ (J/mol/K)', fontsize = 9)
-plt.xlabel(r'Target S$_{\mathrm{vib}}$ (J/mol/K)', fontsize = 9)
+plt.ylabel(r'Predicted RT S$_{\mathrm{vib}}$ (J/mol/K)', fontsize = 9)
+plt.xlabel(r'Target RT S$_{\mathrm{vib}}$ (J/mol/K)', fontsize = 9)
 plt.colorbar(pad=0.01)
 
 

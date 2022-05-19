@@ -13,7 +13,9 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 
-folder = '../../run20/run_20_output/'
+run = '21'
+
+folder = '../../run{}/run_{}_output/'.format(run, run)
 
 fval = open(folder + 'history_val.json')
 
@@ -44,4 +46,4 @@ plt.xlabel('Epochs')
 
 plt.legend()
 
-plt.savefig('mae_traces_dos_orig.pdf', bbox_inches = 'tight')
+plt.savefig('figures/{}_mae_traces.pdf'.format(run), bbox_inches = 'tight')

@@ -12,6 +12,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 from pyvalem.formula import Formula
+from jarvis.core.atoms import Atoms
 
 run = 'run21'
 
@@ -57,3 +58,4 @@ fig.text(-0.02, 0.5, 'Scaled DOS (a.u.)', va='center', rotation='vertical', font
 fig.text(0.5, -0.02, r'Frequency (cm$^{-1}$)', ha='center', fontsize = 14)
 
 plt.savefig('figures/{}_Svib_high_residual.pdf'.format(run), bbox_inches = 'tight')
+
