@@ -23,6 +23,14 @@ mol_mass = np.load('output_files/molar_mass_dft3d.npy')
 
 form_unit = np.load('output_files/form_unit.npy')
 
+
+'''
+Exclude n_elem < 2 and > 16. Exclude radioactive elements?
+'''
+
+radio_list = ['Tc', 'Po', 'Ac', 'Rn', 'Fr', 'Ra', 'Rf', 'Db', 'Ac', 'Th', 'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr']
+
+
 with open('../../{}/pred_data.json'.format(run)) as json_file:
     dos_dict = json.load(json_file)
 

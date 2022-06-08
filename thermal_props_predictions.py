@@ -50,6 +50,7 @@ Svib_kg = []
 iso_tau = []
 id_list = []
 jid_list = []
+mpid_list = []
 mol_mass = []
 form_unit = []
 dos = []
@@ -68,6 +69,7 @@ for p in stable_dos:
     form_unit.append(fu)
     mol_mass.append(mm)
     id_list.append(int(p['id']))
+    mpid_list.append(dft_3d[int(p["id"])]["reference"])
     jid_list.append(dft_3d[int(p['id'])]['jid'])
     int_dos = np.trapz(p['pred'], freq)
     fu_num = pint.get_natoms_form_unit(p)
@@ -91,6 +93,7 @@ np.save('form_unit', form_unit)
 
 output = { 'id' : id_list,
         'jid' : jid_list,
+        'mpid' : mpid_list,
           'molar_mass' : mol_mass,
           'form_unit' : form_unit,
           'isotope_scatt' : iso_tau,
