@@ -83,7 +83,7 @@ for p in pdos_dict:
         scale = (intDOS_t / form_unit) / 3.0
         nDOS = nDOS / scale
         Svib_list.append(pint.vibrational_entropy(nfreq, nDOS, T))
-        Cv_list.append(pint.heat_capacity(nfreq, nDOS, T))
+#        Cv_list.append(pint.heat_capacity(nfreq, nDOS, T))
     # dos_orig_list = np.array(match['pdos_elast'])
     # dos_orig_str = ",".join(map(str, dos_orig_list))
     # dos_orig.append(dos_orig_str)
@@ -91,16 +91,16 @@ for p in pdos_dict:
     # dos_ithz_str = ",".join(map(str, dos_ithz_list))
     # dos_ithz.append(dos_ithz_str)
     
-f1 = open(datafile + 'id_prop_Cv_3N_stable.csv', 'w+')
-f2 = open(datafile + 'id_prop_Svib_3N_stable.csv', 'w+')
+#f1 = open(datafile + 'id_prop_Cv_3N_stable.csv', 'w+')
+f2 = open(datafile + 'id_prop_Svib_3N_stable_2.csv', 'w+')
 #f3 = open(datafile + 'id_prop_dos_ithz.csv', 'w+')
 
 for i in range(len(jvasp_list)):
-    f1.write("%s,%s\n" % (jvasp_list[i], Cv_list[i]))
+#    f1.write("%s,%s\n" % (jvasp_list[i], Cv_list[i]))
     f2.write("%s,%s\n" % (jvasp_list[i], Svib_list[i]))
 #    f3.write("%s,%s\n" % (jvasp_list[i], dos_ithz[i]))
 
-f1.close()
+#f1.close()
 f2.close()
 #f3.close()
     

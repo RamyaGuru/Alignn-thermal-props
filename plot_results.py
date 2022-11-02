@@ -34,9 +34,9 @@ mpl.rcParams.update({'font.monospace': 'Ubuntu Mono', 'font.sans-serif': 'Open S
 
 label = 'integrated_DOS'
 
-pred_df = pd.read_csv('run11predictions_thermal_props_orig.csv')
+pred_df = pd.read_csv('output_files/run11predictions_thermal_props_orig.csv')
 
-target_df = pd.read_csv('run11target_thermal_props_orig.csv')
+target_df = pd.read_csv('output_files/run11target_thermal_props_orig.csv')
 
 plt.figure()
 plt.scatter(pred_df[label], target_df[label], s = 5, color= 'xkcd:medium blue', alpha=0.4)
@@ -80,7 +80,7 @@ freq = np.linspace(0, 1000, len(target))
 fig = plt.figure()
 plt.plot(freq, target, label='DOS', color = 'xkcd:black')
 plt.plot(freq, pint.heat_capacity_scaling(freq, 300) * 10 + 1e-3, color='xkcd:blood red', label=r'Prefactor')
-plt.fill_between(freq, pint.heat_capacity_scaling(freq, 300) * 10 + 1e-3, color = 'xkcd:blood red', alpha = 0.3)
+plt.fill_between(freq, pint.heat_capacity_scaling_trig(freq, 300) * 10 + 1e-3, color = 'xkcd:blood red', alpha = 0.3)
 
 ax = plt.gca()
 ax.axes.get_yaxis().set_visible(False)
@@ -93,7 +93,7 @@ plt.ylabel('DOS (a.u.)')
 plt.xlabel(r'Frequency (cm$^{-1}$)')
 plt.legend(frameon = False)
 
-#plt.savefig('cv_scaling.pdf', bbox_inches='tight')
+plt.savefig('cv_scaling_trig.pdf', bbox_inches='tight')
 
 
 '''
@@ -102,7 +102,7 @@ Plot of vibrational entropy scaling
 fig = plt.figure()
 plt.plot(freq, target, label='DOS', color = 'xkcd:black')
 plt.plot(freq, pint.vibrational_entropy_scaling(freq, 300) * 10 + 1e-3, color='xkcd:blood red', label=r'S$_{\mathrm{vib}}$ scaling')
-plt.fill_between(freq, pint.vibrational_entropy_scaling(freq, 300) * 10 + 1e-3, color = 'xkcd:blood red', alpha = 0.3)
+plt.fill_between(freq, pint.vibrational_entropy_scaling_trig(freq, 300) * 10 + 1e-3, color = 'xkcd:blood red', alpha = 0.3)
 
 ax = plt.gca()
 ax.axes.get_yaxis().set_visible(False)
@@ -115,7 +115,7 @@ plt.ylabel('DOS (a.u.)')
 plt.xlabel(r'Frequency (cm$^{-1}$)')
 #plt.legend(frameon = False)
 
-#plt.savefig('svib_scaling.pdf', bbox_inches='tight')
+plt.savefig('svib_scaling.pdf', bbox_inches='tight')
 
 
 '''
@@ -134,7 +134,7 @@ fig.text(0.78, 0.7, r'$\tau^{-1}_{\mathrm{i}}$', va='center', fontsize = 28)
 plt.xlim(0, 1000)
 plt.ylim(0, 0.009)
 plt.xlabel(r'Frequency (cm$^{-1}$)')
-#plt.savefig('iso_tau_scaling.pdf', bbox_inches='tight')
+plt.savefig('iso_tau_scaling.pdf', bbox_inches='tight')
 
 
 '''
@@ -301,7 +301,7 @@ for temp in np.linspace(0, 700, 500):
 fig = plt.figure()
 plt.plot(np.linspace(0, 700, 500), Cv_T, color = 'xkcd:black', label = r'TiS$_2$')
 plt.plot(np.ones(10) * debyeT, np.linspace(0, 85, 10), linestyle = ':', color = 'xkcd:black', linewidth = 3, alpha = 0.5)
-fig.text(0.3, 0.4, r'$\theta_{\mathrm{D}}$ = 372 K', va='center', fontsize = 18, color = 'xkcd:black')
+fig.text(0.3, 0.4, r'$T_{\mathrm{D}}$ = 372 K', va='center', fontsize = 18, color = 'xkcd:black')
 plt.plot(np.linspace(0, 700, 100), np.ones(100) * DP_limit, linestyle = ':', color = 'xkcd:blood red', linewidth = 3)
 fig.text(0.13, 0.825, 'D-P Limit: 74.8 J/mol/K', va='center', fontsize = 16, color = 'xkcd:blood red')
 
@@ -325,7 +325,7 @@ for temp in np.linspace(0, 700, 500):
 
 
 plt.plot(np.linspace(0, 700, 500), Cv_T, color = 'xkcd:medium blue', label = r'MgSi$_2$')
-fig.text(0.65, 0.6, r'$\theta_{\mathrm{D}}$ = 457 K', va='center', fontsize = 18, color = 'xkcd:medium blue')
+fig.text(0.65, 0.6, r'$T_{\mathrm{D}}$ = 457 K', va='center', fontsize = 18, color = 'xkcd:medium blue')
 
 plt.plot(np.ones(10) * debyeT, np.linspace(0, 85, 10), linestyle = ':', color = 'xkcd:medium blue', linewidth = 3, alpha = 0.5)
 
@@ -334,7 +334,7 @@ plt.xlabel('Temperature (K)')
 plt.legend(frameon = False)
 #plt.plot(np.linspace(0, 600, 100), np.ones(100) * DP_limit, linestyle = ':', color = 'xkcd:blood red', linewidth = 3)
 
-#plt.savefig('Cv_vs_T.pdf', bbox_inches = 'tight')
+plt.savefig('Cv_vs_T.pdf', bbox_inches = 'tight')
 
 
 '''

@@ -79,7 +79,7 @@ graph_fcc = Graph.atom_dgl_multigraph(
             atoms,
             cutoff=100.0,
             atom_features="atomic_number",
-            max_neighbors=12,
+            max_neighbors=4,
             compute_line_graph=True,
             use_canonize=False,
         )
@@ -97,15 +97,15 @@ graph_hcp = Graph.atom_dgl_multigraph(
             use_canonize=False,
         )
 
-# G0 = dgl.to_networkx(graph[0])
-# nx.draw(G0, node_color = [(189. / 255, 157. / 255, 227. / 255),\
-#                           (189. / 255, 157. / 255, 227. / 255),\
-#                            (114. / 255, 173. / 255, 87. / 255)], arrows = False)
+G0 = dgl.to_networkx(graph_fcc[0])
+nx.draw(G0, node_color = [(189. / 255, 157. / 255, 227. / 255),\
+                          (189. / 255, 157. / 255, 227. / 255),\
+                            (114. / 255, 173. / 255, 87. / 255)], arrows = False)
 
-# plt.savefig('graph0_mg2si.pdf', bbox_inches = 'tight')
+plt.savefig('graph0_mg2si.pdf', bbox_inches = 'tight')
 
-# plt.figure()
-# G1 = dgl.to_networkx(graph[1])
-# nx.draw(G1, node_color = 'xkcd:black', arrows = False)
+plt.figure()
+G1 = dgl.to_networkx(graph_fcc[1])
+nx.draw(G1, node_color = 'xkcd:silver', edge_color = 'xkcd:silver', alpha = 0.3, arrows = False)
 
-# plt.savefig('graph1_mg2si.pdf', bbox_inches = 'tight')
+plt.savefig('graph1_mg2si.pdf', bbox_inches = 'tight', transparent = True)

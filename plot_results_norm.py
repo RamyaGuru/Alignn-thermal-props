@@ -28,7 +28,7 @@ run = 'run21'
 
 
 #Open the Target and Predicted DOS thermal properties
-with open('output_files/{}_thermal_props_scale_3N.json'.format(run)) as therm_file:
+with open('output_files/{}_thermal_props_scale_3N_mod.json'.format(run)) as therm_file:
     therm_dict = json.load(therm_file)
 
 prop_list = ['S_vib (J/mol/K)', 'Cp (J/mol/K)']
@@ -231,8 +231,8 @@ for p in pairs:
 
 plt.scatter(therm_dict[label]['target'], therm_dict[label]['prediction'], s = 3, c= c_svib, alpha=0.5, cmap = 'Spectral_r', vmax = 80)
 
-x = np.linspace(0,4000,10)
-y = np.linspace(0,4000,10)
+x = np.linspace(0,600,10)
+y = np.linspace(0,600,10)
 
 
 plt.plot(x, y, linewidth=1, color='xkcd:black')
@@ -242,8 +242,8 @@ plt.plot(x, y - (np.quantile(therm_dict[label]['target'], 0.5) - np.quantile(the
 plt.plot(x, y + (np.quantile(therm_dict[label]['target'], 0.75) - np.quantile(therm_dict[label]['target'], 0.5)), linewidth=1, linestyle='--', color='xkcd:black')
 
 
-plt.xlim([0, 4000])
-plt.ylim([0, 4000])
+plt.xlim([0, 600])
+plt.ylim([0, 600])
 
 plt.ylabel(r'Predicted RT S$_{\mathrm{vib}}$ (J/mol/K)', fontsize = 9)
 plt.xlabel(r'Target RT S$_{\mathrm{vib}}$ (J/mol/K)', fontsize = 9)
@@ -397,7 +397,7 @@ plt.xlim([0,50])
 plt.ylabel(r'Predicted $\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 9)
 plt.xlabel(r'Target $\tau^{-1}_{\mathrm{i}}$ (GHz)', fontsize = 9)
 
-plt.colorbar(pad=0.01)
+plt.colorbar(label = 'Sample Count', pad=0.01)
 plt.savefig('figures/{}_therm_props_multipanel_mockup.pdf'.format(run), bbox_inches = 'tight')
 
 '''
@@ -446,7 +446,7 @@ mae_cv_list = np.load('output_files/{}_mae_cv_debyeT_list.npy'.format(run))
 mae_svib_list = np.load('output_files/{}_mae_svib_debyeT_list.npy'.format(run))
 debT_list = np.load('output_files/{}_debyeT_list.npy'.format(run))
 
-frac = np.arange(0.1, 1.1, 0.1)
+frac = np.arange(0.1, 1.6, 0.1)
 
 plt.figure()
 
@@ -459,15 +459,15 @@ ax2 = ax[0].twinx()
 
 ax[0].scatter(frac, mae_cv_list, color = 'xkcd:black', s = 10, clip_on = False)
 ax[0].plot(frac, mae_cv_list, color = 'xkcd:black')
-plt.xlim([0,1])
-ax[0].set_ylim([0, 3])
+#plt.xlim([0,1])
+#ax[0].set_ylim([0, 3])
 
 plt.xlabel(r'Fraction of $\theta_{\mathrm{D}}$')
 ax[0].set_ylabel(r'MAE in C$_{\mathrm{V}}$ (J/mol/K)')
 
 ax2.scatter(frac, mae_svib_list, color = 'xkcd:blood red', s = 10, clip_on = False)
 ax2.plot(frac, mae_svib_list, color = 'xkcd:blood red')
-ax2.set_ylim([0, 30])
+#ax2.set_ylim([0, 30])
 
 
 ax[0].set_xlabel(r'Fraction of $\theta_{\mathrm{D}}$')

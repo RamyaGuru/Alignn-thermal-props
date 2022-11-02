@@ -226,7 +226,7 @@ def vibrational_entropy(omega, dos, T = 300):
     dos = dos / icm_to_eV
     x = (omega) / (kB * T)
     n = 1 / (np.exp(x[1:]) - 1)
-    S_vib = kB  * ((n + 1) * np.log(n + 1) + n * np.log(n)) * dos[1:]
+    S_vib = kB  * ((n + 1) * np.log(n + 1) - n * np.log(n)) * dos[1:]
     S_vib = np.insert(S_vib, 0, 0)
     return np.trapz(S_vib, omega) * e * Na
 
@@ -234,10 +234,19 @@ def vibrational_entropy_scaling(omega, T = 300):
     omega = omega * icm_to_eV
     x = (omega) / (kB * T)
     n = 1 / (np.exp(x[1:]) - 1)
-    S_vib = kB  * ((n + 1) * np.log(n + 1) + n * np.log(n))
+    S_vib = kB  * ((n + 1) * np.log(n + 1) - n * np.log(n))
     S_vib = np.insert(S_vib, 0, S_vib[0])
     return S_vib  
 
+def vibrational_entropy_scaling_trig(omega, T = 300):
+    omega = omega * icm_to_eV
+    x = (omega) / (kB * T)
+    print(x)
+    Svib = kB * ((x / 2) * (1 / np.tanh(x / 2)) - np.log(2 * np.sinh(x / 2)))
+    return Svib
+
+#def vibrational_entropy_trig(omega, dos, T = 300):
+    
 
 def heat_capacity(omega, dos, T = 300):
     #Convert inv. cm to eV
@@ -255,7 +264,15 @@ def heat_capacity_scaling(omega, T = 300):
     #Drop omega = 0 term?
     Cp = kB * x[1:]**2 * (np.exp(x[1:]) / (np.exp(x[1:]) - 1)**2)#removed factor of 3
     Cp = np.insert(Cp, 0, Cp[0])
-    return Cp    
+    return Cp   
+
+    
+def heat_capacity_scaling_trig(omega, T = 300):
+    omega = omega * icm_to_eV
+    x = (omega) / (kB * T)
+    Cp = kB * (x / 2)**2 * (1 / np.sinh(x / 2))**2
+    #Cp = np.insert(Cp, 0, Cp[0])
+    return Cp
     
 def isotopic_gamma(p):
     atoms = Atoms.from_dict(p['atoms'])

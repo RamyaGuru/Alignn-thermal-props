@@ -11,13 +11,21 @@ Multiply by molar mass and rank
 import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt
+from pyvalem.formula import Formula
 import json
 
-pd.set_option('display.float_format', '{:.2E}'.format)
+pd.reset_option('display.float_format')#, '{:.2E}'.format)
 
 run = 'run21'
 
-dft3d_df = pd.read_csv('output_files/{}_thermal_props_dft3d.csv'.format(run))
+json_file = 'output_files/{}_thermal_props_dft3d_mod.json'.format(run)
+
+with open(json_file) as infile:
+    dft3d_dict = json.load(infile)
+    
+dft3d_df = pd.DataFrame.from_dict(dft3d_dict)
+
+#dft3d_df = pd.read_csv('output_files/{}_thermal_props_dft3d_mod.csv'.format(run))
 
 mol_mass = np.load('output_files/molar_mass_dft3d.npy')
 
@@ -34,8 +42,8 @@ radio_list = ['Tc', 'Po', 'Ac', 'Rn', 'Fr', 'Ra', 'Rf', 'Db', 'Ac', 'Th', 'Pa', 
 with open('../../{}/pred_data.json'.format(run)) as json_file:
     dos_dict = json.load(json_file)
 
-Svib_sorted = dft3d_df.sort_values(by = ['Svib_kg'])
-Cv_sorted = dft3d_df.sort_values(by = ['Cv_kg'])
+Svib_sorted = dft3d_df.sort_values(by = ['Svib_norm'])
+Cv_sorted = dft3d_df.sort_values(by = ['Cv_norm'])
 iso_scatt = dft3d_df.sort_values(by = ['isotope_scatt'])
 
 iso_scatt = iso_scatt[iso_scatt['isotope_scatt'] > 0]
@@ -53,10 +61,10 @@ print('Maximum vibrational Entropies')
 
 print(Svib_sorted[-10:])
 
-Svib_latex_dict = {'Low JID' : np.array(Svib_sorted[:10]['id']),\
+Svib_latex_dict = {'Low JID' : np.array(Svib_sorted[:10]['jid']),\
                     'Low Composition' : np.array(Svib_sorted[:10]['form_unit']),\
                         'Low Svib' : np.array(Svib_sorted[:10]['Svib_kg']),\
-                'High JID' : np.array(Svib_sorted[-10:]['id']),\
+                'High JID' : np.array(Svib_sorted[-10:]['jid']),\
                     'High Composition' : np.array(Svib_sorted[-10:]['form_unit']),\
                         'High Svib' : np.array(Svib_sorted[-10:]['Svib_kg'])}
 
@@ -120,6 +128,182 @@ iso_df = pd.DataFrame(iso_latex_dict)
 iso_str = iso_df.to_latex(index = False)
 
 
+
+'''
+Plot the lowest vibrational entropy spectra
+'''
+
+fig, ax = plt.subplots(1, 3, figsize = (9, 2))
+fig.tight_layout(h_pad = 2)
+
+freq = np.linspace(0, 1000, 51)
+n = 1
+for indx in range(3):
+    plt.subplot(1, 3, indx+1)
+    plt.plot(freq, np.array(Svib_sorted['scaled_dos'][indx:(indx + 1)])[0],\
+             color = 'xkcd:black')
+    cf = Formula(np.array(Svib_sorted['form_unit'][indx:(indx + 1)])[0])
+    jid = np.array(Svib_sorted['jid'][indx:(indx + 1)])[0]
+    title_str = '$' + cf.latex + '$' + '; JID:' + jid
+    plt.title(title_str)
+    plt.ylim([-0.001, 0.01])
+    plt.yticks([0, 0.005, 0.01])
+fig.text(-0.03, 0.5, 'Scaled DOS (a.u.)', va='center', rotation='vertical', fontsize = 12)
+fig.text(0.5, -0.02, r'Frequency (cm$^{-1}$)', ha='center', fontsize = 12)
+plt.savefig('lowest_svib_spectra.pdf', bbox_inches = 'tight')
+    
+    
+    
+'''
+Plot the highest vibrational entropy spectra
+'''
+
+fig, ax = plt.subplots(1, 3, figsize = (9, 2))
+fig.tight_layout(h_pad = 2)
+
+freq = np.linspace(0, 1000, 51)
+n = 1
+for indx in range(3):
+    plt.subplot(1, 3, indx+1)
+    if indx == 0:
+        plt.plot(freq, np.array(Svib_sorted['scaled_dos'][-1:])[0],\
+                 color = 'xkcd:black')
+        cf = Formula(np.array(Svib_sorted['form_unit'][-1:])[0])
+        jid = np.array(Svib_sorted['jid'][-1:])[0]
+    else:
+        plt.plot(freq, np.array(Svib_sorted['scaled_dos'][-(indx+1):-(indx)])[0],\
+                 color = 'xkcd:black')        
+        cf = Formula(np.array(Svib_sorted['form_unit'][-(indx+1):-(indx)])[0])
+        jid = np.array(Svib_sorted['jid'][-(indx+1):-(indx)])[0]
+    title_str = '$' + cf.latex + '$' + '; JID:' + jid
+    plt.title(title_str)
+fig.text(-0.03, 0.5, 'Scaled DOS (a.u.)', va='center', rotation='vertical', fontsize = 12)
+fig.text(0.5, -0.02, r'Frequency (cm$^{-1}$)', ha='center', fontsize = 12)
+plt.savefig('highest_svib_spectra.pdf', bbox_inches = 'tight') 
+
+
+'''
+Plot the lowest phonon-isotope scattering
+'''
+
+fig, ax = plt.subplots(1, 3, figsize = (9, 2))
+fig.tight_layout(h_pad = 2)
+
+freq = np.linspace(0, 1000, 51)
+n = 1
+for indx in range(3):
+    plt.subplot(1, 3, indx+1)
+    plt.plot(freq, np.array(iso_scatt['scaled_dos'][indx:(indx + 1)])[0],\
+             color = 'xkcd:black')
+    cf = Formula(np.array(iso_scatt['form_unit'][indx:(indx + 1)])[0])
+    jid = np.array(iso_scatt['jid'][indx:(indx + 1)])[0]
+    title_str = '$' + cf.latex + '$' + '; JID:' + jid
+    plt.title(title_str)
+fig.text(-0.03, 0.5, 'Scaled DOS (a.u.)', va='center', rotation='vertical', fontsize = 12)
+fig.text(0.5, -0.02, r'Frequency (cm$^{-1}$)', ha='center', fontsize = 12)
+plt.savefig('lowest_tau_spectra.pdf', bbox_inches = 'tight')
+    
+    
+    
+'''
+Plot the highest phonon-isotope scattering
+'''
+
+fig, ax = plt.subplots(1, 3, figsize = (9, 2))
+fig.tight_layout(h_pad = 2)
+
+freq = np.linspace(0, 1000, 51)
+n = 1
+for indx in range(3):
+    plt.subplot(1, 3, indx+1)
+    if indx == 0:
+        plt.plot(freq, np.array(Cv_sorted['scaled_dos'][-1:])[0],\
+                 color = 'xkcd:black')
+        cf = Formula(np.array(Cv_sorted['form_unit'][-1:])[0])
+        jid = np.array(iso_scatt['jid'][-1:])[0]
+    else:
+        plt.plot(freq, np.array(Cv_sorted['scaled_dos'][-(indx+1):-(indx)])[0],\
+                 color = 'xkcd:black')        
+        cf = Formula(np.array(Cv_sorted['form_unit'][-(indx+1):-(indx)])[0])
+        jid = np.array(Cv_sorted['jid'][-(indx+1):-(indx)])[0]
+    title_str = '$' + cf.latex + '$' + '; JID:' + jid
+    plt.title(title_str)
+fig.text(-0.03, 0.5, 'Scaled DOS (a.u.)', va='center', rotation='vertical', fontsize = 12)
+fig.text(0.5, -0.02, r'Frequency (cm$^{-1}$)', ha='center', fontsize = 12)
+plt.savefig('highest_tau_spectra.pdf', bbox_inches = 'tight') 
+
+
+'''
+Plot the lowest heat capacity
+'''
+
+fig, ax = plt.subplots(1, 3, figsize = (9, 2))
+fig.tight_layout(h_pad = 2)
+
+freq = np.linspace(0, 1000, 51)
+n = 1
+for indx in range(3):
+    plt.subplot(1, 3, indx+1)
+    plt.plot(freq, np.array(Cv_sorted['scaled_dos'][indx:(indx + 1)])[0],\
+             color = 'xkcd:black')
+    cf = Formula(np.array(Cv_sorted['form_unit'][indx:(indx + 1)])[0])
+    jid = np.array(Cv_sorted['jid'][indx:(indx + 1)])[0]
+    title_str = '$' + cf.latex + '$' + '; JID:' + jid
+    plt.title(title_str)
+fig.text(-0.03, 0.5, 'Scaled DOS (a.u.)', va='center', rotation='vertical', fontsize = 12)
+fig.text(0.5, -0.02, r'Frequency (cm$^{-1}$)', ha='center', fontsize = 12)
+plt.savefig('lowest_cv_spectra.pdf', bbox_inches = 'tight')
+    
+    
+    
+'''
+Plot the highest heat capacity
+'''
+
+fig, ax = plt.subplots(1, 3, figsize = (9, 2))
+fig.tight_layout(h_pad = 2)
+
+freq = np.linspace(0, 1000, 51)
+n = 1
+for indx in range(3):
+    plt.subplot(1, 3, indx+1)
+    if indx == 0:
+        plt.plot(freq, np.array(Cv_sorted['scaled_dos'][-1:])[0],\
+                 color = 'xkcd:black')
+        cf = Formula(np.array(Cv_sorted['form_unit'][-1:])[0])
+        jid = np.array(iso_scatt['jid'][-1:])[0]
+    else:
+        plt.plot(freq, np.array(Cv_sorted['scaled_dos'][-(indx+1):-(indx)])[0],\
+                 color = 'xkcd:black')        
+        cf = Formula(np.array(Cv_sorted['form_unit'][-(indx+1):-(indx)])[0])
+        jid = np.array(Cv_sorted['jid'][-(indx+1):-(indx)])[0]
+    title_str = '$' + cf.latex + '$' + '; JID:' + jid
+    plt.title(title_str)
+fig.text(-0.03, 0.5, 'Scaled DOS (a.u.)', va='center', rotation='vertical', fontsize = 12)
+fig.text(0.5, -0.02, r'Frequency (cm$^{-1}$)', ha='center', fontsize = 12)
+plt.savefig('highest_cv_spectra.pdf', bbox_inches = 'tight') 
+
+
+
+    
+# for n in range(3,6):
+#     plt.subplot(2, 3, n+1)
+#     indx = n - 3
+#     if indx == 0:
+#         plt.plot(freq, np.array(Svib_sorted['scaled_dos'][-1:])[0],\
+#                  color = 'xkcd:black')
+#         cf = Formula(np.array(Svib_sorted['form_unit'][-1:])[0])
+#         jid = np.array(Svib_sorted['jid'][-1:])[0]
+#     else:
+#         plt.plot(freq, np.array(Svib_sorted['scaled_dos'][-(indx+1):-(indx)])[0],\
+#                  color = 'xkcd:black')        
+#         cf = Formula(np.array(Svib_sorted['form_unit'][-(indx+1):-(indx)])[0])
+#         jid = np.array(Svib_sorted['jid'][-(indx+1):-(indx)])[0]
+#     title_str = '$' + cf.latex + '$' + '; JID:' + jid
+#     plt.title(title_str)        
+# plt.savefig('highest_svib_spectra.pdf', bbox_inches = 'tight')
+    
+    
 # Svib_kg = dft3d_df['Svib_kg'] 
 
 # Cv_kg = dft3d_df['Cv_kg'] 

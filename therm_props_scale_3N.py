@@ -111,7 +111,7 @@ therm_output = {'JID' : jid_list,
           'Cp (J/mol/K) DebT' : {'target': Cv_debT_t , 'prediction': Cv_debT_p}}
 
 
-with open('output_files/{}_thermal_props_scale_3N.json'.format(run), 'w') as out_file:
+with open('output_files/{}_thermal_props_scale_3N_mod.json'.format(run), 'w') as out_file:
     json.dump(therm_output, out_file)
     
 

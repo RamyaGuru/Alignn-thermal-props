@@ -14,18 +14,23 @@ import json
 from pyvalem.formula import Formula
 from jarvis.core.atoms import Atoms
 
+def mean_absolute_deviation(data, axis=None):
+    return np.mean(np.absolute(data - np.mean(data, axis)), axis)
+
 
 run = '21'
 
 direct_Cv_test = pd.read_csv('../../run{}/run_{}_Cv_output/prediction_results_test_set.csv'.format(run, run))
 
-direct_Svib_test = pd.read_csv('../../run{}/run_{}_Svib_output/prediction_results_test_set.csv'.format(run, run))
+direct_Svib_test = pd.read_csv('../../run{}/run_{}_Svib_output_2/prediction_results_test_set.csv'.format(run, run))
 
 
 # plt.figure()
 # plt.scatter(direct_Cv_test['target'], direct_Cv_test['prediction'])
 
 Cv_r2_score = r2_score(direct_Cv_test['target'], direct_Cv_test['prediction'])
+Cv_mae = mean_absolute_error(direct_Cv_test['target'], direct_Cv_test['prediction'])
+Cv_mad = mean_absolute_deviation(direct_Cv_test['target'])
 
 
 label = 'Cp (J/mol/K)'
@@ -88,6 +93,8 @@ plt.savefig('direct_Cv_prediction.pdf', bbox_inches = 'tight')
 plt.figure()
 #plt.scatter(direct_Svib_test['target'], direct_Svib_test['prediction'])
 Svib_r2_score = r2_score(direct_Svib_test['target'], direct_Svib_test['prediction'])
+Svib_mae = mean_absolute_error(direct_Svib_test['target'], direct_Svib_test['prediction'])
+Svib_mad = mean_absolute_deviation(direct_Svib_test['target'])
 
 label = 'S_vib (J/mol/K)'
   

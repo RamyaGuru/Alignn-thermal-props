@@ -45,15 +45,17 @@ for d in dos_data:
 
 Cv = []
 Cv_kg = []
+Cv_norm = []
 Svib = []
 Svib_kg = []
+Svib_norm = []
 iso_tau = []
 id_list = []
 jid_list = []
 mpid_list = []
 mol_mass = []
 form_unit = []
-dos = []
+dos_list = []
 
 freq = np.linspace(0, 1000, len(stable_dos[0]['pred']))
 for p in stable_dos:
@@ -75,12 +77,14 @@ for p in stable_dos:
     fu_num = pint.get_natoms_form_unit(p)
     scale = (int_dos / fu_num) / 3.0
     p['pred'] = np.array(p['pred']) / scale
-    dos.append(p['pred'])
+    dos_list.append(list(p['pred']))
     Cv_mol = pint.heat_capacity(freq, p['pred'], T = 300)
     Cv.append(Cv_mol)
     Cv_kg.append(Cv_mol / mm * 1e3)
+    Cv_norm.append(Cv_mol / 3 / fu_num)
     Svib_mol = pint.vibrational_entropy(freq, p['pred'], T = 300)
     Svib.append(Svib_mol)
+    Svib_norm.append(Svib_mol / 3 / fu_num)
     Svib_kg.append(Svib_mol / mm * 1e3)
     try:
         iso_tau.append(pint.isotopic_tau(p, freq, p['pred']))
@@ -96,12 +100,19 @@ output = { 'id' : id_list,
         'mpid' : mpid_list,
           'molar_mass' : mol_mass,
           'form_unit' : form_unit,
+          'scaled_dos' : dos_list,
           'isotope_scatt' : iso_tau,
+          'Svib_mol' : Svib,
+          'Cv_mol' : Cv,
+          'Svib_norm' : Svib_norm,
           'Svib_kg' : Svib_kg,
-          'Cv_kg' : Cv_kg}
+          'Cv_kg' : Cv_kg,
+          'Cv_norm' : Cv_norm,
+          'Svib_norm' : Svib_norm}
 
-df = pd.DataFrame(output)
-df.to_csv('output_files/{}_thermal_props_dft3d.csv'.format(run))
+j_out = 'output_files/{}_thermal_props_dft3d_mod.json'.format(run)
+with open(j_out, 'w') as jfile:
+    json.dump(output, jfile)
 
 # for p in pred:
 #     freq = np.linspace(0, 1000, 201)

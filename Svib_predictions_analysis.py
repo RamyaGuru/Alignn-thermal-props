@@ -16,11 +16,11 @@ from jarvis.core.atoms import Atoms
 
 run = 'run21'
 
-with open('output_files/{}_thermal_props_scale_3N.json'.format(run)) as therm_file:
+with open('output_files/{}_thermal_props_scale_3N_mod.json'.format(run)) as therm_file:
     therm_dict = json.load(therm_file)
     
     
-Svib = therm_dict['S_vib (J/mol/K)']
+Svib = therm_dict['Cp (J/mol/K)']
 
 
 resid = np.abs(np.array(Svib['target']) - np.array(Svib['prediction']))
@@ -57,5 +57,8 @@ for indx in resid_max:
 fig.text(-0.02, 0.5, 'Scaled DOS (a.u.)', va='center', rotation='vertical', fontsize = 14)
 fig.text(0.5, -0.02, r'Frequency (cm$^{-1}$)', ha='center', fontsize = 14)
 
-plt.savefig('figures/{}_Svib_high_residual.pdf'.format(run), bbox_inches = 'tight')
+plt.savefig('figures/{}_cv_high_residual.pdf'.format(run), bbox_inches = 'tight')
+
+
+
 
